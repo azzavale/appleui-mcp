@@ -9,9 +9,6 @@ import { getStyleGuide, styleGuideSchema } from '../src/tools/styleGuideReferenc
 import { allResources, getResource } from '../src/resources/index.js';
 import { allPrompts } from '../src/prompts/index.js';
 
-// Store active transports for session management
-const transports = new Map<string, StreamableHTTPServerTransport>();
-
 function createServer(): McpServer {
   const server = new McpServer({
     name: 'appleui-mcp',
@@ -194,56 +191,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(204).end();
   }
 
-  // Set CORS headers
+  // Set CORS headers for all responses
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id');
 
-  const sessionId = req.headers['mcp-session-id'] as string | undefined;
+  if (req.method === 'POST') {
+    let server: McpServer | undefined;
+    let transport: StreamableHTTPServerTransport | undefined;
 
-  if (req.method === 'GET') {
-    // SSE endpoint for server-to-client messages
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    if (sessionId && transports.has(sessionId)) {
-      // Existing session - connect to transport's SSE
-      const transport = transports.get(sessionId)!;
-      // Keep connection open for SSE
-      req.on('close', () => {
-        transports.delete(sessionId);
-      });
-    } else {
-      // No session yet
-      res.write('event: error\ndata: No session established\n\n');
-      return res.end();
-    }
-  } else if (req.method === 'POST') {
-    // Handle JSON-RPC messages
     try {
-      let transport: StreamableHTTPServerTransport;
+      // Create a fresh server and transport for each request (stateless)
+      server = createServer();
+      transport = new StreamableHTTPServerTransport({
+        sessionIdGenerator: undefined, // CRITICAL: undefined enables stateless mode
+      });
 
-      if (sessionId && transports.has(sessionId)) {
-        transport = transports.get(sessionId)!;
-      } else {
-        // Create new session
-        const server = createServer();
-        transport = new StreamableHTTPServerTransport({
-          sessionIdGenerator: () => crypto.randomUUID(),
-          onsessioninitialized: (id) => {
-            transports.set(id, transport);
-          },
-        });
+      // Connect server to transport
+      await server.connect(transport);
 
-        await server.connect(transport);
-      }
-
-      // Handle the request
-      const response = await transport.handleRequest(req, res, req.body);
-
-      if (!res.headersSent) {
-        return res.status(200).json(response);
-      }
+      // Handle the request using the transport
+      await transport.handleRequest(req, res, req.body);
     } catch (error) {
       console.error('MCP Error:', error);
       if (!res.headersSent) {
@@ -253,14 +220,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           id: null,
         });
       }
+    } finally {
+      // Cleanup to prevent memory leaks
+      if (transport) {
+        await transport.close().catch(() => {});
+      }
+      if (server) {
+        await server.close().catch(() => {});
+      }
     }
+  } else if (req.method === 'GET') {
+    // Return server info for GET requests
+    return res.status(200).json({
+      name: 'appleui-mcp',
+      version: '1.0.0',
+      description: 'Apple UI/UX Design Guidelines MCP Server',
+      capabilities: ['tools', 'resources', 'prompts'],
+    });
   } else if (req.method === 'DELETE') {
-    // Session termination
-    if (sessionId && transports.has(sessionId)) {
-      transports.delete(sessionId);
-      return res.status(200).json({ success: true });
-    }
-    return res.status(404).json({ error: 'Session not found' });
+    // Acknowledge session termination (stateless, so just return success)
+    return res.status(200).json({ success: true });
   } else {
     res.setHeader('Allow', 'GET, POST, DELETE, OPTIONS');
     return res.status(405).json({ error: 'Method not allowed' });
