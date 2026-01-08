@@ -37,6 +37,168 @@ function SuccessBanner() {
   );
 }
 
+// Modal component for displaying new API key with forced copy
+function ApiKeyModal({
+  apiKey,
+  onClose
+}: {
+  apiKey: string;
+  onClose: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(apiKey);
+    setCopied(true);
+  };
+
+  const handleClose = () => {
+    if (!copied) {
+      const confirmClose = window.confirm(
+        'You have not copied your API key! Are you sure you want to close? You will NOT be able to see this key again.'
+      );
+      if (!confirmClose) return;
+    }
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--background)] rounded-2xl border border-[var(--border)] max-w-lg w-full p-6 shadow-xl">
+        {/* Warning Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-12 h-12 rounded-full bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+            <svg className="w-6 h-6 text-amber-600 dark:text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <h3 className="text-xl font-semibold">Save Your API Key</h3>
+            <p className="text-[var(--foreground-muted)] text-sm">This is the only time you will see this key</p>
+          </div>
+        </div>
+
+        {/* Warning Message */}
+        <div className="p-4 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl mb-4">
+          <p className="text-amber-800 dark:text-amber-200 text-sm font-medium">
+            For security reasons, we don't store your full API key. If you lose it, you'll need to generate a new one.
+          </p>
+        </div>
+
+        {/* API Key Display */}
+        <div className="mb-4">
+          <label className="block text-sm font-medium mb-2">Your API Key</label>
+          <div className="p-4 bg-[var(--background-secondary)] rounded-xl border border-[var(--border)] font-mono text-sm break-all select-all">
+            {apiKey}
+          </div>
+        </div>
+
+        {/* Copy Button */}
+        <button
+          onClick={copyToClipboard}
+          className={`w-full py-3 rounded-xl font-medium transition-all mb-4 flex items-center justify-center gap-2 ${
+            copied
+              ? 'bg-green-600 text-white'
+              : 'bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] hover:opacity-90'
+          }`}
+        >
+          {copied ? (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Copied to clipboard!
+            </>
+          ) : (
+            <>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+              </svg>
+              Copy API Key
+            </>
+          )}
+        </button>
+
+        {/* Confirmation Checkbox */}
+        <label className="flex items-start gap-3 mb-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={confirmed}
+            onChange={(e) => setConfirmed(e.target.checked)}
+            className="mt-1 w-4 h-4 rounded border-[var(--border)] text-[var(--taupe-600)] focus:ring-[var(--taupe-500)]"
+          />
+          <span className="text-sm text-[var(--foreground-muted)]">
+            I have saved my API key in a secure location and understand I won't be able to see it again.
+          </span>
+        </label>
+
+        {/* Close Button */}
+        <button
+          onClick={handleClose}
+          disabled={!confirmed && !copied}
+          className={`w-full py-3 rounded-xl font-medium transition-all ${
+            confirmed || copied
+              ? 'bg-[var(--background-secondary)] border border-[var(--border)] hover:bg-[var(--background)] text-[var(--foreground)]'
+              : 'bg-[var(--background-secondary)] border border-[var(--border)] text-[var(--foreground-muted)] opacity-50 cursor-not-allowed'
+          }`}
+        >
+          {confirmed || copied ? 'Done' : 'Copy or confirm to continue'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// Confirmation modal for destructive actions
+function ConfirmModal({
+  title,
+  message,
+  confirmText,
+  onConfirm,
+  onCancel,
+  isLoading,
+}: {
+  title: string;
+  message: string;
+  confirmText: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  isLoading: boolean;
+}) {
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+      <div className="bg-[var(--background)] rounded-2xl border border-[var(--border)] max-w-md w-full p-6 shadow-xl">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+            <svg className="w-5 h-5 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold">{title}</h3>
+        </div>
+        <p className="text-[var(--foreground-muted)] text-sm mb-6">{message}</p>
+        <div className="flex gap-3">
+          <button
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1 py-2.5 rounded-xl font-medium bg-[var(--background-secondary)] border border-[var(--border)] hover:bg-[var(--background)] transition-all disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="flex-1 py-2.5 rounded-xl font-medium bg-red-600 text-white hover:bg-red-700 transition-all disabled:opacity-50"
+          >
+            {isLoading ? 'Processing...' : confirmText}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Dashboard() {
   const [email, setEmail] = useState('');
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -44,7 +206,15 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState('');
-  const [copied, setCopied] = useState(false);
+
+  // Modal states
+  const [showKeyModal, setShowKeyModal] = useState(false);
+  const [confirmAction, setConfirmAction] = useState<{
+    type: 'revoke' | 'regenerate';
+    keyId: string;
+    keyPrefix: string;
+  } | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const fetchUserData = async () => {
     if (!email) {
@@ -65,7 +235,7 @@ export default function Dashboard() {
       }
 
       setUserData(data);
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setIsLoading(false);
@@ -93,19 +263,82 @@ export default function Dashboard() {
       }
 
       setNewApiKey(data.key);
+      setShowKeyModal(true);
       // Refresh user data to show updated keys
       await fetchUserData();
-    } catch (err) {
+    } catch {
       setError('Something went wrong. Please try again.');
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const revokeKey = async (keyId: string) => {
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/keys/revoke', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, keyId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to revoke API key');
+        return;
+      }
+
+      // Refresh user data
+      await fetchUserData();
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const regenerateKey = async (keyId: string) => {
+    setIsProcessing(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/keys/regenerate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, keyId }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to regenerate API key');
+        return;
+      }
+
+      setNewApiKey(data.key);
+      setShowKeyModal(true);
+      // Refresh user data
+      await fetchUserData();
+    } catch {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsProcessing(false);
+      setConfirmAction(null);
+    }
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmAction) return;
+
+    if (confirmAction.type === 'revoke') {
+      revokeKey(confirmAction.keyId);
+    } else {
+      regenerateKey(confirmAction.keyId);
+    }
   };
 
   return (
@@ -171,29 +404,6 @@ export default function Dashboard() {
               )}
             </div>
 
-            {/* New API Key Alert */}
-            {newApiKey && (
-              <div className="p-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl mb-6">
-                <h3 className="text-lg font-semibold text-blue-800 dark:text-blue-200 mb-2">
-                  Your new API key
-                </h3>
-                <p className="text-blue-700 dark:text-blue-300 text-sm mb-3">
-                  Copy this key now. You won't be able to see it again.
-                </p>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 p-3 bg-blue-100 dark:bg-blue-900/40 rounded-lg text-sm font-mono break-all">
-                    {newApiKey}
-                  </code>
-                  <button
-                    onClick={() => copyToClipboard(newApiKey)}
-                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                  >
-                    {copied ? 'Copied!' : 'Copy'}
-                  </button>
-                </div>
-              </div>
-            )}
-
             {/* API Keys */}
             <div className="p-6 bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] mb-6">
               <div className="flex items-center justify-between mb-4">
@@ -205,6 +415,13 @@ export default function Dashboard() {
                 >
                   {isGenerating ? 'Generating...' : 'Generate new key'}
                 </button>
+              </div>
+
+              {/* Info Banner */}
+              <div className="p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl mb-4">
+                <p className="text-blue-700 dark:text-blue-300 text-xs">
+                  <strong>Lost your key?</strong> Use "Regenerate" to create a new key. The old key will be revoked immediately.
+                </p>
               </div>
 
               {userData.apiKeys.length === 0 ? (
@@ -224,10 +441,32 @@ export default function Dashboard() {
                           {key.requestCount} requests
                         </span>
                       </div>
-                      <p className="text-xs text-[var(--foreground-muted)]">
+                      <p className="text-xs text-[var(--foreground-muted)] mb-3">
                         Created: {new Date(key.createdAt).toLocaleDateString()}
                         {key.lastUsedAt && ` • Last used: ${new Date(key.lastUsedAt).toLocaleDateString()}`}
                       </p>
+
+                      {/* Key Actions */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => setConfirmAction({ type: 'regenerate', keyId: key.id, keyPrefix: key.prefix })}
+                          className="flex-1 px-3 py-2 text-xs font-medium rounded-lg bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-900/50 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Regenerate
+                        </button>
+                        <button
+                          onClick={() => setConfirmAction({ type: 'revoke', keyId: key.id, keyPrefix: key.prefix })}
+                          className="px-3 py-2 text-xs font-medium rounded-lg bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors flex items-center justify-center gap-1.5"
+                        >
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Revoke
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -272,6 +511,33 @@ export default function Dashboard() {
           </>
         )}
       </div>
+
+      {/* API Key Modal */}
+      {showKeyModal && newApiKey && (
+        <ApiKeyModal
+          apiKey={newApiKey}
+          onClose={() => {
+            setShowKeyModal(false);
+            setNewApiKey(null);
+          }}
+        />
+      )}
+
+      {/* Confirmation Modal */}
+      {confirmAction && (
+        <ConfirmModal
+          title={confirmAction.type === 'revoke' ? 'Revoke API Key?' : 'Regenerate API Key?'}
+          message={
+            confirmAction.type === 'revoke'
+              ? `This will permanently revoke the key "${confirmAction.keyPrefix}". Any applications using this key will stop working immediately.`
+              : `This will revoke the key "${confirmAction.keyPrefix}" and create a new one. Your current key will stop working immediately.`
+          }
+          confirmText={confirmAction.type === 'revoke' ? 'Revoke Key' : 'Regenerate Key'}
+          onConfirm={handleConfirmAction}
+          onCancel={() => setConfirmAction(null)}
+          isLoading={isProcessing}
+        />
+      )}
     </div>
   );
 }
