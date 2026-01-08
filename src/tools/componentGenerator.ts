@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../../lib/mcp-data/index';
+import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../mcp-data';
 
 export const componentGeneratorSchema = z.object({
   componentType: z.enum([

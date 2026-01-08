@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { colorTokens, typographyTokens, spacingTokens, designPrinciples } from '../../lib/mcp-data/index';
+import { colorTokens, typographyTokens, spacingTokens, designPrinciples } from '../mcp-data';
 
 export const designReviewSchema = z.object({
   code: z.string().describe('The code to analyze (CSS, React, SwiftUI, HTML, or Tailwind)'),
