@@ -4,6 +4,41 @@ import { useState } from 'react';
 
 export default function Home() {
   const [email, setEmail] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleCheckout = async () => {
+    if (!email) {
+      setError('Please enter your email');
+      return;
+    }
+
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Failed to start checkout');
+        return;
+      }
+
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -230,11 +265,22 @@ export default function Home() {
                 </li>
               ))}
             </ul>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full px-4 py-4 mb-4 rounded-full border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] placeholder-[var(--foreground-subtle)] focus:outline-none focus:ring-2 focus:ring-[var(--taupe-500)]"
+            />
+            {error && (
+              <p className="text-center text-sm text-red-500 mb-4">{error}</p>
+            )}
             <button
-              onClick={() => window.location.href = '/api/checkout?email=' + email}
-              className="w-full py-4 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full font-medium hover:opacity-90 transition-all"
+              onClick={handleCheckout}
+              disabled={isLoading}
+              className="w-full py-4 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full font-medium hover:opacity-90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Get started
+              {isLoading ? 'Loading...' : 'Get started'}
             </button>
             <p className="text-center text-sm text-[var(--foreground-subtle)] mt-4">Cancel anytime.</p>
           </div>
