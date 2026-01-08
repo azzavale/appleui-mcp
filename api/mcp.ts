@@ -8,6 +8,7 @@ import { generateComponent, componentGeneratorSchema } from '../src/tools/compon
 import { getStyleGuide, styleGuideSchema } from '../src/tools/styleGuideReference.js';
 import { allResources, getResource } from '../src/resources/index.js';
 import { allPrompts } from '../src/prompts/index.js';
+import { validateApiKey, recordApiKeyUsage } from '../lib/auth/api-keys.js';
 
 function createServer(): McpServer {
   const server = new McpServer({
@@ -187,13 +188,47 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method === 'OPTIONS') {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, DELETE, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, mcp-session-id');
     return res.status(204).end();
   }
 
   // Set CORS headers for all responses
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, mcp-session-id');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, mcp-session-id');
+
+  // API Key Authentication (required for POST requests)
+  if (req.method === 'POST') {
+    const authHeader = req.headers.authorization;
+    const apiKey = authHeader?.replace('Bearer ', '');
+
+    if (!apiKey) {
+      return res.status(401).json({
+        jsonrpc: '2.0',
+        error: {
+          code: -32001,
+          message: 'API key required. Include Authorization: Bearer YOUR_API_KEY header.',
+        },
+        id: null,
+      });
+    }
+
+    const validation = await validateApiKey(apiKey);
+    if (!validation.valid) {
+      return res.status(403).json({
+        jsonrpc: '2.0',
+        error: {
+          code: -32002,
+          message: validation.error || 'Invalid or expired API key',
+        },
+        id: null,
+      });
+    }
+
+    // Record usage asynchronously (don't block the request)
+    if (validation.apiKeyId) {
+      recordApiKeyUsage(validation.apiKeyId).catch(() => {});
+    }
+  }
 
   if (req.method === 'POST') {
     let server: McpServer | undefined;

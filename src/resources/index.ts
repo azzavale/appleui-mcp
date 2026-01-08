@@ -1,4 +1,4 @@
-import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../data/index.js';
+import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../data/index';
 
 export interface Resource {
   uri: string;

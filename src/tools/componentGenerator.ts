@@ -1,12 +1,17 @@
 import { z } from 'zod';
-import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../data/index.js';
+import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../data/index';
 
 export const componentGeneratorSchema = z.object({
   componentType: z.enum([
+    // Original 18 components
     'button', 'card', 'modal', 'navigation-bar', 'tab-bar',
     'sidebar', 'list', 'form-input', 'toggle', 'slider',
     'alert', 'sheet', 'menu', 'toolbar', 'search-bar',
-    'segmented-control', 'stepper', 'picker'
+    'segmented-control', 'stepper', 'picker',
+    // New 12 components
+    'avatar', 'badge', 'tooltip', 'checkbox', 'radio-group',
+    'textarea', 'progress-ring', 'skeleton', 'toast',
+    'accordion', 'divider', 'breadcrumb'
   ]).describe('Type of component to generate'),
   platform: z.enum(['react', 'swiftui', 'react-native', 'tailwind', 'css']).describe('Target platform/framework'),
   variant: z.enum(['default', 'prominent', 'subtle', 'destructive']).optional().default('default').describe('Visual variant'),
@@ -22,6 +27,7 @@ export const componentGeneratorSchema = z.object({
     roundedCorners: z.enum(['none', 'small', 'medium', 'large', 'full']).optional(),
     useBlur: z.boolean().optional(),
     shadowLevel: z.number().min(0).max(4).optional(),
+    size: z.enum(['xs', 'sm', 'md', 'lg', 'xl']).optional(),
   }).optional(),
 });
 
@@ -69,6 +75,8 @@ function generateReactComponent(input: ComponentGeneratorInput): GeneratedCompon
   const shadowLevel = customizations?.shadowLevel ?? 1;
   const shadow = shadowTokens.css.light[`level${shadowLevel}` as keyof typeof shadowTokens.css.light];
 
+  const size = customizations?.size || 'md';
+
   switch (componentType) {
     case 'button':
       return generateReactButton(variant, cornerRadius, shadow, includeAnimations, darkModeSupport);
@@ -83,6 +91,31 @@ function generateReactComponent(input: ComponentGeneratorInput): GeneratedCompon
       return generateReactToggle(darkModeSupport);
     case 'search-bar':
       return generateReactSearchBar(darkModeSupport);
+    // New components
+    case 'avatar':
+      return generateReactAvatar(size, darkModeSupport);
+    case 'badge':
+      return generateReactBadge(variant, darkModeSupport);
+    case 'tooltip':
+      return generateReactTooltip(darkModeSupport);
+    case 'checkbox':
+      return generateReactCheckbox(darkModeSupport);
+    case 'radio-group':
+      return generateReactRadioGroup(darkModeSupport);
+    case 'textarea':
+      return generateReactTextarea(darkModeSupport);
+    case 'progress-ring':
+      return generateReactProgressRing(size, darkModeSupport);
+    case 'skeleton':
+      return generateReactSkeleton(darkModeSupport);
+    case 'toast':
+      return generateReactToast(variant, darkModeSupport);
+    case 'accordion':
+      return generateReactAccordion(darkModeSupport);
+    case 'divider':
+      return generateReactDivider(darkModeSupport);
+    case 'breadcrumb':
+      return generateReactBreadcrumb(darkModeSupport);
     default:
       return generateReactButton(variant, cornerRadius, shadow, includeAnimations, darkModeSupport);
   }
@@ -1394,6 +1427,1560 @@ const styles = StyleSheet.create({
       'Uses Pressable for press animation',
       'Detects dark mode with useColorScheme',
       'Follows iOS button sizing guidelines',
+    ],
+  };
+}
+
+// ========== NEW COMPONENT GENERATORS ==========
+
+function generateReactAvatar(size: string = 'md', darkModeSupport: boolean = true): GeneratedComponent {
+  const sizes = {
+    xs: { container: '24px', fontSize: '10px' },
+    sm: { container: '32px', fontSize: '12px' },
+    md: { container: '40px', fontSize: '14px' },
+    lg: { container: '56px', fontSize: '18px' },
+    xl: { container: '80px', fontSize: '24px' },
+  };
+  const sizeConfig = sizes[size as keyof typeof sizes] || sizes.md;
+
+  const code = `import React from 'react';
+import styles from './Avatar.module.css';
+
+interface AvatarProps {
+  src?: string;
+  alt?: string;
+  name?: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+}
+
+export function Avatar({ src, alt, name, size = '${size}' }: AvatarProps) {
+  const initials = name
+    ? name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase()
+    : '?';
+
+  return (
+    <div className={\`\${styles.avatar} \${styles[size]}\`}>
+      {src ? (
+        <img src={src} alt={alt || name || 'Avatar'} className={styles.image} />
+      ) : (
+        <span className={styles.initials}>{initials}</span>
+      )}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  overflow: hidden;
+  background-color: #007AFF;
+  color: white;
+  font-family: ${typographyTokens.fontFamily.system};
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.xs { width: 24px; height: 24px; font-size: 10px; }
+.sm { width: 32px; height: 32px; font-size: 12px; }
+.md { width: 40px; height: 40px; font-size: 14px; }
+.lg { width: 56px; height: 56px; font-size: 18px; }
+.xl { width: 80px; height: 80px; font-size: 24px; }
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.initials {
+  user-select: none;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .avatar {
+    background-color: #0A84FF;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<Avatar name="John Doe" size="${size}" />
+<Avatar src="/profile.jpg" alt="Profile" size="${size}" />`,
+    tokens: {
+      colors: ['systemBlue (#007AFF)'],
+      spacing: Object.entries(sizes).map(([k, v]) => `${k}: ${v.container}`),
+      typography: ['fontWeight: 600'],
+    },
+    notes: [
+      'Displays image or initials fallback',
+      '5 size variants available',
+      'Circular shape with overflow hidden',
+    ],
+  };
+}
+
+function generateReactBadge(variant: string = 'default', darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Badge.module.css';
+
+interface BadgeProps {
+  children: React.ReactNode;
+  variant?: 'default' | 'prominent' | 'subtle' | 'destructive';
+}
+
+export function Badge({ children, variant = '${variant}' }: BadgeProps) {
+  return (
+    <span className={\`\${styles.badge} \${styles[variant]}\`}>
+      {children}
+    </span>
+  );
+}`;
+
+  const stylesCode = `.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.default {
+  background-color: rgba(120, 120, 128, 0.12);
+  color: #000000;
+}
+
+.prominent {
+  background-color: #007AFF;
+  color: white;
+}
+
+.subtle {
+  background-color: rgba(0, 122, 255, 0.12);
+  color: #007AFF;
+}
+
+.destructive {
+  background-color: #FF3B30;
+  color: white;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .default {
+    background-color: rgba(120, 120, 128, 0.24);
+    color: #FFFFFF;
+  }
+
+  .prominent {
+    background-color: #0A84FF;
+  }
+
+  .subtle {
+    background-color: rgba(10, 132, 255, 0.2);
+    color: #0A84FF;
+  }
+
+  .destructive {
+    background-color: #FF453A;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<Badge>Default</Badge>
+<Badge variant="prominent">New</Badge>
+<Badge variant="destructive">Error</Badge>`,
+    tokens: {
+      colors: ['systemBlue', 'systemRed', 'fill.tertiary'],
+      spacing: ['padding: 2px 8px', 'border-radius: 9999px'],
+      typography: ['fontSize: 12px', 'fontWeight: 600'],
+    },
+    notes: [
+      'Pill-shaped status indicator',
+      '4 color variants',
+      'Compact inline display',
+    ],
+  };
+}
+
+function generateReactTooltip(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React, { useState, useRef, useEffect } from 'react';
+import styles from './Tooltip.module.css';
+
+interface TooltipProps {
+  content: string;
+  children: React.ReactNode;
+  position?: 'top' | 'bottom' | 'left' | 'right';
+}
+
+export function Tooltip({ content, children, position = 'top' }: TooltipProps) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div
+      className={styles.container}
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+      onFocus={() => setIsVisible(true)}
+      onBlur={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div className={\`\${styles.tooltip} \${styles[position]}\`} role="tooltip">
+          {content}
+          <div className={styles.arrow} />
+        </div>
+      )}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.container {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  position: absolute;
+  padding: 6px 10px;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: white;
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 13px;
+  border-radius: 6px;
+  white-space: nowrap;
+  z-index: 1000;
+  animation: fadeIn 0.15s ${animationTokens.bezierCurves.appleEase};
+}
+
+.top {
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-bottom: 8px;
+}
+
+.bottom {
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  margin-top: 8px;
+}
+
+.left {
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-right: 8px;
+}
+
+.right {
+  left: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 8px;
+}
+
+.arrow {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background-color: rgba(0, 0, 0, 0.75);
+  transform: rotate(45deg);
+}
+
+.top .arrow {
+  bottom: -4px;
+  left: 50%;
+  margin-left: -4px;
+}
+
+.bottom .arrow {
+  top: -4px;
+  left: 50%;
+  margin-left: -4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .tooltip {
+    background-color: rgba(60, 60, 67, 0.9);
+  }
+  .arrow {
+    background-color: rgba(60, 60, 67, 0.9);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<Tooltip content="More information">
+  <button>Hover me</button>
+</Tooltip>`,
+    tokens: {
+      colors: ['rgba(0, 0, 0, 0.75)'],
+      spacing: ['padding: 6px 10px', 'border-radius: 6px'],
+      typography: ['fontSize: 13px'],
+    },
+    notes: [
+      '4 position options (top, bottom, left, right)',
+      'Accessible with focus states',
+      'Fade-in animation',
+    ],
+  };
+}
+
+function generateReactCheckbox(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Checkbox.module.css';
+
+interface CheckboxProps {
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+  label?: string;
+  disabled?: boolean;
+}
+
+export function Checkbox({ checked, onChange, label, disabled = false }: CheckboxProps) {
+  return (
+    <label className={\`\${styles.container} \${disabled ? styles.disabled : ''}\`}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        disabled={disabled}
+        className={styles.input}
+      />
+      <span className={\`\${styles.checkbox} \${checked ? styles.checked : ''}\`}>
+        {checked && (
+          <svg viewBox="0 0 12 12" className={styles.checkmark}>
+            <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+          </svg>
+        )}
+      </span>
+      {label && <span className={styles.label}>{label}</span>}
+    </label>
+  );
+}`;
+
+  const stylesCode = `.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.container.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(120, 120, 128, 0.32);
+  border-radius: 6px;
+  background-color: transparent;
+  transition: all 0.15s ${animationTokens.bezierCurves.appleEase};
+}
+
+.checkbox.checked {
+  background-color: #007AFF;
+  border-color: #007AFF;
+}
+
+.checkmark {
+  width: 12px;
+  height: 12px;
+  color: white;
+}
+
+.label {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 17px;
+  color: #000000;
+}
+
+.input:focus-visible + .checkbox {
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.4);
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .checkbox {
+    border-color: rgba(120, 120, 128, 0.48);
+  }
+
+  .checkbox.checked {
+    background-color: #0A84FF;
+    border-color: #0A84FF;
+  }
+
+  .label {
+    color: #FFFFFF;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `const [isChecked, setIsChecked] = useState(false);
+
+<Checkbox
+  checked={isChecked}
+  onChange={setIsChecked}
+  label="Accept terms"
+/>`,
+    tokens: {
+      colors: ['systemBlue (#007AFF)', 'fill.secondary'],
+      spacing: ['width: 22px', 'height: 22px', 'border-radius: 6px'],
+      typography: ['fontSize: 17px'],
+    },
+    notes: [
+      'Custom styled checkbox with checkmark SVG',
+      'Focus ring for accessibility',
+      'Disabled state support',
+    ],
+  };
+}
+
+function generateReactRadioGroup(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './RadioGroup.module.css';
+
+interface RadioOption {
+  value: string;
+  label: string;
+}
+
+interface RadioGroupProps {
+  name: string;
+  options: RadioOption[];
+  value: string;
+  onChange: (value: string) => void;
+  disabled?: boolean;
+}
+
+export function RadioGroup({ name, options, value, onChange, disabled = false }: RadioGroupProps) {
+  return (
+    <div className={styles.group} role="radiogroup">
+      {options.map((option) => (
+        <label
+          key={option.value}
+          className={\`\${styles.container} \${disabled ? styles.disabled : ''}\`}
+        >
+          <input
+            type="radio"
+            name={name}
+            value={option.value}
+            checked={value === option.value}
+            onChange={(e) => onChange(e.target.value)}
+            disabled={disabled}
+            className={styles.input}
+          />
+          <span className={\`\${styles.radio} \${value === option.value ? styles.checked : ''}\`}>
+            {value === option.value && <span className={styles.dot} />}
+          </span>
+          <span className={styles.label}>{option.label}</span>
+        </label>
+      ))}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.container {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.container.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.radio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 2px solid rgba(120, 120, 128, 0.32);
+  border-radius: 50%;
+  background-color: transparent;
+  transition: all 0.15s ${animationTokens.bezierCurves.appleEase};
+}
+
+.radio.checked {
+  border-color: #007AFF;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background-color: #007AFF;
+}
+
+.label {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 17px;
+  color: #000000;
+}
+
+.input:focus-visible + .radio {
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.4);
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .radio {
+    border-color: rgba(120, 120, 128, 0.48);
+  }
+
+  .radio.checked {
+    border-color: #0A84FF;
+  }
+
+  .dot {
+    background-color: #0A84FF;
+  }
+
+  .label {
+    color: #FFFFFF;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `const [selected, setSelected] = useState('option1');
+
+<RadioGroup
+  name="options"
+  options={[
+    { value: 'option1', label: 'Option 1' },
+    { value: 'option2', label: 'Option 2' },
+    { value: 'option3', label: 'Option 3' },
+  ]}
+  value={selected}
+  onChange={setSelected}
+/>`,
+    tokens: {
+      colors: ['systemBlue (#007AFF)', 'fill.secondary'],
+      spacing: ['width: 22px', 'height: 22px', 'gap: 12px'],
+      typography: ['fontSize: 17px'],
+    },
+    notes: [
+      'Proper radiogroup ARIA role',
+      'Keyboard accessible',
+      'Animated selection state',
+    ],
+  };
+}
+
+function generateReactTextarea(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Textarea.module.css';
+
+interface TextareaProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  label?: string;
+  rows?: number;
+  maxLength?: number;
+  error?: string;
+  disabled?: boolean;
+}
+
+export function Textarea({
+  value,
+  onChange,
+  placeholder,
+  label,
+  rows = 4,
+  maxLength,
+  error,
+  disabled = false,
+}: TextareaProps) {
+  return (
+    <div className={styles.container}>
+      {label && <label className={styles.label}>{label}</label>}
+      <textarea
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        rows={rows}
+        maxLength={maxLength}
+        disabled={disabled}
+        className={\`\${styles.textarea} \${error ? styles.error : ''}\`}
+      />
+      <div className={styles.footer}>
+        {error && <span className={styles.errorText}>{error}</span>}
+        {maxLength && (
+          <span className={styles.counter}>{value.length}/{maxLength}</span>
+        )}
+      </div>
+    </div>
+  );
+}`;
+
+  const stylesCode = `.container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 15px;
+  font-weight: 500;
+  color: #000000;
+}
+
+.textarea {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 10px;
+  background-color: rgba(118, 118, 128, 0.12);
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 17px;
+  color: #000000;
+  outline: none;
+  resize: vertical;
+  min-height: 100px;
+  transition: box-shadow 0.2s ${animationTokens.bezierCurves.appleEase};
+}
+
+.textarea::placeholder {
+  color: rgba(60, 60, 67, 0.3);
+}
+
+.textarea:focus {
+  box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.4);
+}
+
+.textarea:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  resize: none;
+}
+
+.textarea.error {
+  box-shadow: 0 0 0 2px #FF3B30;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.errorText {
+  font-size: 13px;
+  color: #FF3B30;
+}
+
+.counter {
+  font-size: 13px;
+  color: rgba(60, 60, 67, 0.6);
+  margin-left: auto;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .label {
+    color: #FFFFFF;
+  }
+
+  .textarea {
+    background-color: rgba(118, 118, 128, 0.24);
+    color: #FFFFFF;
+  }
+
+  .textarea::placeholder {
+    color: rgba(235, 235, 245, 0.3);
+  }
+
+  .textarea.error {
+    box-shadow: 0 0 0 2px #FF453A;
+  }
+
+  .errorText {
+    color: #FF453A;
+  }
+
+  .counter {
+    color: rgba(235, 235, 245, 0.6);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `const [text, setText] = useState('');
+
+<Textarea
+  label="Description"
+  value={text}
+  onChange={setText}
+  placeholder="Enter your description..."
+  maxLength={500}
+/>`,
+    tokens: {
+      colors: ['fill.tertiary', 'label.primary', 'systemRed'],
+      spacing: ['padding: 12px 16px', 'border-radius: 10px'],
+      typography: ['fontSize: 17px (input)', 'fontSize: 15px (label)'],
+    },
+    notes: [
+      'Resizable textarea with min-height',
+      'Character counter support',
+      'Error state with message',
+    ],
+  };
+}
+
+function generateReactProgressRing(size: string = 'md', darkModeSupport: boolean = true): GeneratedComponent {
+  const sizes = {
+    xs: { size: 24, stroke: 2 },
+    sm: { size: 32, stroke: 3 },
+    md: { size: 48, stroke: 4 },
+    lg: { size: 64, stroke: 5 },
+    xl: { size: 96, stroke: 6 },
+  };
+  const sizeConfig = sizes[size as keyof typeof sizes] || sizes.md;
+
+  const code = `import React from 'react';
+import styles from './ProgressRing.module.css';
+
+interface ProgressRingProps {
+  progress: number; // 0-100
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  showLabel?: boolean;
+}
+
+export function ProgressRing({ progress, size = '${size}', showLabel = false }: ProgressRingProps) {
+  const sizes = {
+    xs: { size: 24, stroke: 2 },
+    sm: { size: 32, stroke: 3 },
+    md: { size: 48, stroke: 4 },
+    lg: { size: 64, stroke: 5 },
+    xl: { size: 96, stroke: 6 },
+  };
+  const config = sizes[size];
+  const radius = (config.size - config.stroke) / 2;
+  const circumference = radius * 2 * Math.PI;
+  const offset = circumference - (progress / 100) * circumference;
+
+  return (
+    <div className={styles.container} style={{ width: config.size, height: config.size }}>
+      <svg className={styles.svg} viewBox={\`0 0 \${config.size} \${config.size}\`}>
+        <circle
+          className={styles.background}
+          cx={config.size / 2}
+          cy={config.size / 2}
+          r={radius}
+          strokeWidth={config.stroke}
+        />
+        <circle
+          className={styles.progress}
+          cx={config.size / 2}
+          cy={config.size / 2}
+          r={radius}
+          strokeWidth={config.stroke}
+          strokeDasharray={circumference}
+          strokeDashoffset={offset}
+        />
+      </svg>
+      {showLabel && (
+        <span className={styles.label}>{Math.round(progress)}%</span>
+      )}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.svg {
+  transform: rotate(-90deg);
+}
+
+.background {
+  fill: none;
+  stroke: rgba(120, 120, 128, 0.12);
+}
+
+.progress {
+  fill: none;
+  stroke: #007AFF;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.3s ${animationTokens.bezierCurves.appleEase};
+}
+
+.label {
+  position: absolute;
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 12px;
+  font-weight: 600;
+  color: #000000;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .background {
+    stroke: rgba(120, 120, 128, 0.24);
+  }
+
+  .progress {
+    stroke: #0A84FF;
+  }
+
+  .label {
+    color: #FFFFFF;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<ProgressRing progress={75} size="${size}" showLabel />`,
+    tokens: {
+      colors: ['systemBlue (#007AFF)', 'fill.tertiary'],
+      spacing: Object.entries(sizes).map(([k, v]) => `${k}: ${v.size}px`),
+      typography: ['fontSize: 12px', 'fontWeight: 600'],
+    },
+    notes: [
+      'SVG-based circular progress',
+      '5 size variants',
+      'Smooth animation on value change',
+    ],
+  };
+}
+
+function generateReactSkeleton(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Skeleton.module.css';
+
+interface SkeletonProps {
+  variant?: 'text' | 'circular' | 'rectangular';
+  width?: string | number;
+  height?: string | number;
+  lines?: number;
+}
+
+export function Skeleton({
+  variant = 'text',
+  width,
+  height,
+  lines = 1,
+}: SkeletonProps) {
+  if (variant === 'text' && lines > 1) {
+    return (
+      <div className={styles.textGroup}>
+        {Array.from({ length: lines }).map((_, i) => (
+          <div
+            key={i}
+            className={\`\${styles.skeleton} \${styles.text}\`}
+            style={{
+              width: i === lines - 1 ? '60%' : width || '100%',
+              height: height || '16px',
+            }}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={\`\${styles.skeleton} \${styles[variant]}\`}
+      style={{
+        width: width || (variant === 'circular' ? '48px' : '100%'),
+        height: height || (variant === 'circular' ? '48px' : variant === 'text' ? '16px' : '100px'),
+      }}
+    />
+  );
+}`;
+
+  const stylesCode = `.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(120, 120, 128, 0.12) 0%,
+    rgba(120, 120, 128, 0.2) 50%,
+    rgba(120, 120, 128, 0.12) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.text {
+  border-radius: 4px;
+}
+
+.circular {
+  border-radius: 50%;
+}
+
+.rectangular {
+  border-radius: 8px;
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      rgba(120, 120, 128, 0.24) 0%,
+      rgba(120, 120, 128, 0.36) 50%,
+      rgba(120, 120, 128, 0.24) 100%
+    );
+    background-size: 200% 100%;
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `{/* Text skeleton */}
+<Skeleton variant="text" lines={3} />
+
+{/* Avatar skeleton */}
+<Skeleton variant="circular" width={48} height={48} />
+
+{/* Card skeleton */}
+<Skeleton variant="rectangular" height={200} />`,
+    tokens: {
+      colors: ['fill.tertiary'],
+      spacing: ['border-radius: 4px/8px/50%', 'gap: 8px'],
+      typography: [],
+    },
+    notes: [
+      '3 variants: text, circular, rectangular',
+      'Shimmer animation effect',
+      'Multi-line text support',
+    ],
+  };
+}
+
+function generateReactToast(variant: string = 'default', darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React, { useEffect, useState } from 'react';
+import styles from './Toast.module.css';
+
+interface ToastProps {
+  message: string;
+  variant?: 'default' | 'prominent' | 'subtle' | 'destructive';
+  duration?: number;
+  onClose: () => void;
+}
+
+export function Toast({ message, variant = '${variant}', duration = 3000, onClose }: ToastProps) {
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(onClose, 200);
+    }, duration);
+
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
+
+  return (
+    <div className={\`\${styles.toast} \${styles[variant]} \${isVisible ? styles.visible : styles.hidden}\`}>
+      <span className={styles.message}>{message}</span>
+      <button className={styles.close} onClick={() => { setIsVisible(false); setTimeout(onClose, 200); }}>
+        <svg viewBox="0 0 12 12" fill="currentColor">
+          <path d="M2.5 2.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      </button>
+    </div>
+  );
+}
+
+// Toast container for multiple toasts
+export function ToastContainer({ toasts, onRemove }: { toasts: Array<{ id: string; message: string; variant?: string }>; onRemove: (id: string) => void }) {
+  return (
+    <div className={styles.container}>
+      {toasts.map((toast) => (
+        <Toast key={toast.id} message={toast.message} variant={toast.variant as any} onClose={() => onRemove(toast.id)} />
+      ))}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 9999;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  backdrop-filter: blur(20px);
+  box-shadow: ${shadowTokens.css.light.level2};
+  min-width: 280px;
+  max-width: 420px;
+  font-family: ${typographyTokens.fontFamily.system};
+}
+
+.visible {
+  animation: slideIn 0.2s ${animationTokens.bezierCurves.springLike};
+}
+
+.hidden {
+  animation: slideOut 0.2s ${animationTokens.bezierCurves.appleEase} forwards;
+}
+
+.default {
+  background-color: rgba(255, 255, 255, 0.9);
+  color: #000000;
+}
+
+.prominent {
+  background-color: rgba(0, 122, 255, 0.95);
+  color: white;
+}
+
+.subtle {
+  background-color: rgba(242, 242, 247, 0.95);
+  color: #000000;
+}
+
+.destructive {
+  background-color: rgba(255, 59, 48, 0.95);
+  color: white;
+}
+
+.message {
+  flex: 1;
+  font-size: 15px;
+}
+
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.close:hover {
+  opacity: 1;
+}
+
+.close svg {
+  width: 12px;
+  height: 12px;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .default {
+    background-color: rgba(44, 44, 46, 0.95);
+    color: #FFFFFF;
+  }
+
+  .subtle {
+    background-color: rgba(28, 28, 30, 0.95);
+    color: #FFFFFF;
+  }
+
+  .prominent {
+    background-color: rgba(10, 132, 255, 0.95);
+  }
+
+  .destructive {
+    background-color: rgba(255, 69, 58, 0.95);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `const [toasts, setToasts] = useState([]);
+
+const addToast = (message: string, variant = 'default') => {
+  const id = Date.now().toString();
+  setToasts(prev => [...prev, { id, message, variant }]);
+};
+
+const removeToast = (id: string) => {
+  setToasts(prev => prev.filter(t => t.id !== id));
+};
+
+<button onClick={() => addToast('Changes saved!')}>Show Toast</button>
+<ToastContainer toasts={toasts} onRemove={removeToast} />`,
+    tokens: {
+      colors: ['systemBlue', 'systemRed', 'background.secondary'],
+      spacing: ['padding: 12px 16px', 'border-radius: 12px'],
+      typography: ['fontSize: 15px'],
+    },
+    notes: [
+      'Auto-dismiss with configurable duration',
+      'Slide-in/out animations',
+      'Container for managing multiple toasts',
+    ],
+  };
+}
+
+function generateReactAccordion(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React, { useState } from 'react';
+import styles from './Accordion.module.css';
+
+interface AccordionItem {
+  id: string;
+  title: string;
+  content: React.ReactNode;
+}
+
+interface AccordionProps {
+  items: AccordionItem[];
+  allowMultiple?: boolean;
+}
+
+export function Accordion({ items, allowMultiple = false }: AccordionProps) {
+  const [openItems, setOpenItems] = useState<string[]>([]);
+
+  const toggle = (id: string) => {
+    if (allowMultiple) {
+      setOpenItems(prev =>
+        prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+      );
+    } else {
+      setOpenItems(prev => (prev.includes(id) ? [] : [id]));
+    }
+  };
+
+  return (
+    <div className={styles.accordion}>
+      {items.map((item) => {
+        const isOpen = openItems.includes(item.id);
+        return (
+          <div key={item.id} className={styles.item}>
+            <button
+              className={styles.trigger}
+              onClick={() => toggle(item.id)}
+              aria-expanded={isOpen}
+            >
+              <span className={styles.title}>{item.title}</span>
+              <svg
+                className={\`\${styles.chevron} \${isOpen ? styles.open : ''}\`}
+                viewBox="0 0 12 12"
+                fill="none"
+              >
+                <path d="M3 4.5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            <div className={\`\${styles.content} \${isOpen ? styles.expanded : ''}\`}>
+              <div className={styles.inner}>{item.content}</div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}`;
+
+  const stylesCode = `.accordion {
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: rgba(118, 118, 128, 0.12);
+}
+
+.item {
+  border-bottom: 1px solid rgba(60, 60, 67, 0.12);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+
+.trigger:hover {
+  background-color: rgba(120, 120, 128, 0.08);
+}
+
+.title {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 17px;
+  font-weight: 600;
+  color: #000000;
+}
+
+.chevron {
+  width: 12px;
+  height: 12px;
+  color: rgba(60, 60, 67, 0.6);
+  transition: transform 0.2s ${animationTokens.bezierCurves.appleEase};
+}
+
+.chevron.open {
+  transform: rotate(180deg);
+}
+
+.content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.2s ${animationTokens.bezierCurves.appleEase};
+}
+
+.content.expanded {
+  grid-template-rows: 1fr;
+}
+
+.inner {
+  overflow: hidden;
+  padding: 0 16px;
+}
+
+.content.expanded .inner {
+  padding: 0 16px 16px;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .accordion {
+    background-color: rgba(118, 118, 128, 0.24);
+  }
+
+  .item {
+    border-bottom-color: rgba(84, 84, 88, 0.36);
+  }
+
+  .title {
+    color: #FFFFFF;
+  }
+
+  .chevron {
+    color: rgba(235, 235, 245, 0.6);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<Accordion
+  items={[
+    { id: '1', title: 'Section 1', content: <p>Content for section 1</p> },
+    { id: '2', title: 'Section 2', content: <p>Content for section 2</p> },
+    { id: '3', title: 'Section 3', content: <p>Content for section 3</p> },
+  ]}
+  allowMultiple={false}
+/>`,
+    tokens: {
+      colors: ['fill.tertiary', 'label.primary', 'separator'],
+      spacing: ['padding: 16px', 'border-radius: 12px'],
+      typography: ['fontSize: 17px', 'fontWeight: 600'],
+    },
+    notes: [
+      'Single or multiple expansion modes',
+      'Smooth CSS grid animation',
+      'Accessible with aria-expanded',
+    ],
+  };
+}
+
+function generateReactDivider(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Divider.module.css';
+
+interface DividerProps {
+  orientation?: 'horizontal' | 'vertical';
+  label?: string;
+}
+
+export function Divider({ orientation = 'horizontal', label }: DividerProps) {
+  if (label) {
+    return (
+      <div className={\`\${styles.divider} \${styles.withLabel}\`}>
+        <span className={styles.line} />
+        <span className={styles.label}>{label}</span>
+        <span className={styles.line} />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={\`\${styles.divider} \${styles[orientation]}\`}
+      role="separator"
+      aria-orientation={orientation}
+    />
+  );
+}`;
+
+  const stylesCode = `.divider {
+  background-color: rgba(60, 60, 67, 0.18);
+}
+
+.horizontal {
+  height: 1px;
+  width: 100%;
+}
+
+.vertical {
+  width: 1px;
+  height: 100%;
+}
+
+.withLabel {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background-color: transparent;
+}
+
+.line {
+  flex: 1;
+  height: 1px;
+  background-color: rgba(60, 60, 67, 0.18);
+}
+
+.label {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 13px;
+  color: rgba(60, 60, 67, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .divider {
+    background-color: rgba(84, 84, 88, 0.36);
+  }
+
+  .line {
+    background-color: rgba(84, 84, 88, 0.36);
+  }
+
+  .label {
+    color: rgba(235, 235, 245, 0.6);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `{/* Simple divider */}
+<Divider />
+
+{/* Vertical divider */}
+<Divider orientation="vertical" />
+
+{/* Divider with label */}
+<Divider label="or" />`,
+    tokens: {
+      colors: ['separator'],
+      spacing: ['height: 1px', 'gap: 12px'],
+      typography: ['fontSize: 13px'],
+    },
+    notes: [
+      'Horizontal and vertical orientations',
+      'Optional centered label',
+      'Proper ARIA separator role',
+    ],
+  };
+}
+
+function generateReactBreadcrumb(darkModeSupport: boolean = true): GeneratedComponent {
+  const code = `import React from 'react';
+import styles from './Breadcrumb.module.css';
+
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface BreadcrumbProps {
+  items: BreadcrumbItem[];
+  separator?: React.ReactNode;
+}
+
+export function Breadcrumb({ items, separator }: BreadcrumbProps) {
+  const defaultSeparator = (
+    <svg className={styles.separator} viewBox="0 0 8 12" fill="none">
+      <path d="M1 1l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+
+  return (
+    <nav aria-label="Breadcrumb">
+      <ol className={styles.breadcrumb}>
+        {items.map((item, index) => (
+          <li key={index} className={styles.item}>
+            {item.href ? (
+              <a href={item.href} className={styles.link}>
+                {item.label}
+              </a>
+            ) : (
+              <span className={styles.current} aria-current="page">
+                {item.label}
+              </span>
+            )}
+            {index < items.length - 1 && (separator || defaultSeparator)}
+          </li>
+        ))}
+      </ol>
+    </nav>
+  );
+}`;
+
+  const stylesCode = `.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.link {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 15px;
+  color: #007AFF;
+  text-decoration: none;
+}
+
+.link:hover {
+  text-decoration: underline;
+}
+
+.current {
+  font-family: ${typographyTokens.fontFamily.system};
+  font-size: 15px;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+.separator {
+  width: 8px;
+  height: 12px;
+  color: rgba(60, 60, 67, 0.3);
+  flex-shrink: 0;
+}
+
+${darkModeSupport ? `@media (prefers-color-scheme: dark) {
+  .link {
+    color: #0A84FF;
+  }
+
+  .current {
+    color: rgba(235, 235, 245, 0.6);
+  }
+
+  .separator {
+    color: rgba(235, 235, 245, 0.3);
+  }
+}` : ''}`;
+
+  return {
+    code,
+    styles: stylesCode,
+    usage: `<Breadcrumb
+  items={[
+    { label: 'Home', href: '/' },
+    { label: 'Products', href: '/products' },
+    { label: 'Category', href: '/products/category' },
+    { label: 'Current Page' },
+  ]}
+/>`,
+    tokens: {
+      colors: ['systemBlue (#007AFF)', 'label.secondary'],
+      spacing: ['gap: 4px'],
+      typography: ['fontSize: 15px'],
+    },
+    notes: [
+      'Semantic nav with aria-label',
+      'Current page with aria-current',
+      'Custom separator support',
     ],
   };
 }

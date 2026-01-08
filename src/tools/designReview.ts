@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { colorTokens, typographyTokens, spacingTokens, designPrinciples } from '../data/index.js';
+import { colorTokens, typographyTokens, spacingTokens, designPrinciples } from '../data/index';
 
 export const designReviewSchema = z.object({
   code: z.string().describe('The code to analyze (CSS, React, SwiftUI, HTML, or Tailwind)'),

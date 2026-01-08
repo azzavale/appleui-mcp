@@ -8,7 +8,7 @@ import {
   materialTokens,
   designPrinciples,
   componentPatterns
-} from '../data/index.js';
+} from '../data/index';
 
 export const styleGuideSchema = z.object({
   topic: z.enum([
