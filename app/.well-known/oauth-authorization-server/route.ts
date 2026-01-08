@@ -16,8 +16,10 @@ export async function OPTIONS() {
 export async function GET() {
   // Return metadata indicating this server uses Bearer token auth (API keys)
   // Not a full OAuth server - clients should use pre-configured API keys
+  // authorization_endpoint is required by MCP clients even for API key auth
   return NextResponse.json({
     issuer: 'https://appleuimcp.com',
+    authorization_endpoint: 'https://appleuimcp.com/api/authorize',
     token_endpoint: 'https://appleuimcp.com/api/token',
     response_types_supported: ['token'],
     grant_types_supported: ['client_credentials'],

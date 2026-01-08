@@ -222,7 +222,21 @@ export async function POST(request: NextRequest) {
     }, { status: 401, headers: corsHeaders });
   }
 
-  const validation = await validateApiKey(apiKey);
+  let validation;
+  try {
+    validation = await validateApiKey(apiKey);
+  } catch (error) {
+    console.error('API key validation error:', error);
+    return NextResponse.json({
+      jsonrpc: '2.0',
+      error: {
+        code: -32002,
+        message: 'API key validation failed',
+      },
+      id: null,
+    }, { status: 500, headers: corsHeaders });
+  }
+
   if (!validation.valid) {
     return NextResponse.json({
       jsonrpc: '2.0',
@@ -266,10 +280,14 @@ export async function POST(request: NextRequest) {
       header: (name: string) => headersObj[name.toLowerCase()],
     };
 
-    // Collect the response
+    // Collect the response using a Promise to properly wait for completion
     let responseBody: string = '';
     let responseStatus = 200;
     let responseHeaders: Record<string, string> = {};
+    let resolveResponse: () => void;
+    const responseComplete = new Promise<void>((resolve) => {
+      resolveResponse = resolve;
+    });
 
     const mockRes = {
       headersSent: false,
@@ -297,6 +315,7 @@ export async function POST(request: NextRequest) {
       },
       json: (data: unknown) => {
         responseBody = JSON.stringify(data);
+        resolveResponse();
         return mockRes;
       },
       write: (chunk: string | Buffer) => {
@@ -308,6 +327,7 @@ export async function POST(request: NextRequest) {
           responseBody += typeof chunk === 'string' ? chunk : chunk.toString();
         }
         mockRes.headersSent = true;
+        resolveResponse();
       },
       on: () => mockRes,
       once: () => mockRes,
@@ -315,7 +335,25 @@ export async function POST(request: NextRequest) {
       removeListener: () => mockRes,
     };
 
+    // Handle the request and wait for response completion
     await transport.handleRequest(mockReq as any, mockRes as any, body);
+
+    // Wait for the response to be complete (with timeout)
+    await Promise.race([
+      responseComplete,
+      new Promise<void>((_, reject) =>
+        setTimeout(() => reject(new Error('Response timeout')), 30000)
+      ),
+    ]);
+
+    // Ensure we have a valid response body
+    if (!responseBody) {
+      return NextResponse.json({
+        jsonrpc: '2.0',
+        error: { code: -32603, message: 'Empty response from MCP server' },
+        id: null,
+      }, { status: 500, headers: corsHeaders });
+    }
 
     return new NextResponse(responseBody, {
       status: responseStatus,
