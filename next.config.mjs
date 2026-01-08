@@ -1,10 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Experimental options to fix ESM bundling
-  experimental: {
-    // Force bundle server components
-    serverComponentsExternalPackages: [],
-  },
+  // External packages for server components
+  serverExternalPackages: [],
   // Allow existing API routes in /api folder
   async rewrites() {
     return [

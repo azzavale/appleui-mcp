@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 interface ApiKey {
@@ -19,10 +19,25 @@ interface UserData {
   apiKeys: ApiKey[];
 }
 
-export default function Dashboard() {
+function SuccessBanner() {
   const searchParams = useSearchParams();
   const success = searchParams.get('success');
 
+  if (!success) return null;
+
+  return (
+    <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+      <h2 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">
+        Payment successful!
+      </h2>
+      <p className="text-green-700 dark:text-green-300 text-sm">
+        Your subscription is now active. Enter your email below to view your API key.
+      </p>
+    </div>
+  );
+}
+
+export default function Dashboard() {
   const [email, setEmail] = useState('');
   const [userData, setUserData] = useState<UserData | null>(null);
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
@@ -97,16 +112,9 @@ export default function Dashboard() {
     <div className="min-h-screen bg-[var(--background)] py-16 px-6">
       <div className="max-w-2xl mx-auto">
         {/* Success Banner */}
-        {success && (
-          <div className="mb-8 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
-            <h2 className="text-lg font-semibold text-green-800 dark:text-green-200 mb-1">
-              Payment successful!
-            </h2>
-            <p className="text-green-700 dark:text-green-300 text-sm">
-              Your subscription is now active. Enter your email below to view your API key.
-            </p>
-          </div>
-        )}
+        <Suspense fallback={null}>
+          <SuccessBanner />
+        </Suspense>
 
         <h1 className="text-3xl font-semibold mb-2">Dashboard</h1>
         <p className="text-[var(--foreground-muted)] mb-8">
