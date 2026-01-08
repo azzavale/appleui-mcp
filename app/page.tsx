@@ -11,10 +11,12 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--background)]/80 backdrop-blur-md border-b border-[var(--border-subtle)]">
         <nav className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] flex items-center justify-center">
-              <span className="text-[var(--taupe-50)] dark:text-[var(--taupe-950)] text-sm font-bold">UI</span>
-            </div>
-            <span className="font-semibold text-lg">Apple UI</span>
+            <img
+              src="/logo.png"
+              alt="Apple UI MCP"
+              className="w-8 h-8"
+            />
+            <span className="font-semibold text-lg">Apple UI MCP</span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Features</a>
@@ -33,57 +35,83 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="pt-32 pb-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--background-secondary)] border border-[var(--border)] text-sm mb-8">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent-green)]"></span>
-            Available for Claude, Cursor & more
-          </div>
-          <h1 className="text-4xl md:text-6xl font-semibold mb-6 tracking-tight text-balance">
-            Build Apple-quality UI
-            <br />
-            <span className="text-[var(--foreground-muted)]">with AI assistance</span>
-          </h1>
-          <p className="text-lg md:text-xl text-[var(--foreground-muted)] mb-10 max-w-2xl mx-auto text-balance">
-            Generate Human Interface Guidelines-compliant components for React, SwiftUI, and Tailwind. Seamless MCP integration for your favorite AI tools.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#pricing"
-              className="inline-flex items-center justify-center px-8 py-4 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full font-medium hover:opacity-90 transition-all"
-            >
-              Start building for $7.99/mo
-            </a>
-            <a
-              href="#docs"
-              className="inline-flex items-center justify-center px-8 py-4 bg-[var(--background-secondary)] border border-[var(--border)] text-[var(--foreground)] rounded-full font-medium hover:bg-[var(--taupe-100)] dark:hover:bg-[var(--taupe-800)] transition-all"
-            >
-              View documentation
-            </a>
+        <div className="max-w-7xl mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left: Text Content */}
+            <div>
+              <h1 className="text-6xl md:text-6xl font-semibold mb-6 tracking-tight text-balance">
+                Build Apple Style
+                <br />
+                UI UX Design
+                <br />
+                <span className="text-[var(--foreground-muted)]">with an MCP</span>
+              </h1>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <a
+                  href="#pricing"
+                  className="inline-flex items-center justify-center px-8 py-4 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full font-medium hover:opacity-90 transition-all"
+                >
+                  Start building for $19.99/mo
+                </a>
+              </div>
+            </div>
+
+            {/* Right: Before/After Comparison */}
+            <div className="grid grid-cols-2 gap-2">
+              {/* Without */}
+              <div className="flex flex-col gap-2 justify-center items-center text-center">
+                <span className="px-2 py-0.5 w-[120px] bg-[var(--taupe-200)] dark:bg-[var(--taupe-700)] text-[var(--foreground-muted)] text-s text-center font-medium rounded-full">
+                  Without MCP
+                </span>
+                <div className="rounded-xl overflow-hidden p-2 flex justify-center items-center">
+                  <img
+                    src="/Without.png"
+                    alt="UI without Apple UI MCP"
+                    className="w-full h-auto mx-auto"
+                  />
+                </div>
+              </div>
+
+              {/* With */}
+              <div className="flex flex-col gap-2 justify-center items-center text-center">
+                <span className="px-2 py-0.5 w-[120px] bg-[var(--accent-green)] text-white text-s text-center font-medium rounded-full">
+                  With MCP
+                </span>
+                <div className="rounded-xl overflow-hidden p-2 flex justify-center items-center">
+                  <img
+                    src="/With.png"
+                    alt="UI with Apple UI MCP"
+                    className="w-full h-auto"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Logos Section */}
-      <section className="py-12 px-6 border-y border-[var(--border-subtle)]">
+      <section className="py-12 px-6">
         <div className="max-w-4xl mx-auto">
           <p className="text-center text-sm text-[var(--foreground-subtle)] mb-8">Works with your favorite AI tools</p>
           <div className="flex flex-wrap justify-center items-center gap-12">
             <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
-              <span className="text-2xl font-bold">C</span>
               <span className="font-medium">Claude</span>
             </div>
             <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
-              <span className="text-2xl font-mono font-bold">&gt;_</span>
+              <span className="font-medium">Gemini</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
+              <span className="font-medium">Codex</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
+              <span className="font-medium">VS Code</span>
+            </div>
+            <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
               <span className="font-medium">Cursor</span>
             </div>
             <div className="flex items-center gap-2 text-[var(--foreground-muted)]">
-              <span className="text-2xl font-bold">W</span>
               <span className="font-medium">Windsurf</span>
-            </div>
-            <div className="flex items-center gap-2 text-[var(--foreground-subtle)]">
-              <span className="text-2xl font-bold">Cx</span>
-              <span className="font-medium">Codex</span>
-              <span className="text-xs bg-[var(--taupe-200)] dark:bg-[var(--taupe-700)] px-2 py-0.5 rounded-full">Soon</span>
             </div>
           </div>
         </div>
@@ -95,7 +123,7 @@ export default function Home() {
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4">Three powerful tools</h2>
             <p className="text-[var(--foreground-muted)] max-w-xl mx-auto">
-              Everything you need to build beautiful, HIG-compliant interfaces
+              Everything you need to build beautiful interfaces
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -108,9 +136,8 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Review Design</h3>
               <p className="text-[var(--foreground-muted)] mb-4">
-                Analyze your code for Apple HIG compliance. Get scores, issues, and actionable recommendations.
+                Analyze your codebase. Get scores, issues, and actionable recommendations.
               </p>
-              <code className="text-sm text-[var(--accent-blue)] font-mono">review_design</code>
             </div>
 
             {/* Tool 2 */}
@@ -122,9 +149,8 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Generate Component</h3>
               <p className="text-[var(--foreground-muted)] mb-4">
-                Create Apple-styled components for React, SwiftUI, React Native, Tailwind, or CSS.
+                Create Apple-styled components for React, SwiftUI, React Native, Tailwind, or CSS. 30+
               </p>
-              <code className="text-sm text-[var(--accent-blue)] font-mono">generate_component</code>
             </div>
 
             {/* Tool 3 */}
@@ -136,45 +162,16 @@ export default function Home() {
               </div>
               <h3 className="text-xl font-semibold mb-3">Style Guide</h3>
               <p className="text-[var(--foreground-muted)] mb-4">
-                Access Human Interface Guidelines for colors, typography, spacing, animations, and more.
+                Access Guidelines for colors, typography, spacing, animations, and more.
               </p>
-              <code className="text-sm text-[var(--accent-blue)] font-mono">get_style_guide</code>
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Components Section */}
-      <section id="components" className="py-24 px-6 bg-[var(--background-secondary)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-semibold mb-4">30+ component types</h2>
-            <p className="text-[var(--foreground-muted)] max-w-xl mx-auto">
-              From buttons to complex layouts, all following Apple design principles
-            </p>
-          </div>
-          <div className="flex flex-wrap justify-center gap-3">
-            {[
-              'button', 'card', 'modal', 'navigation-bar', 'tab-bar', 'sidebar', 'list',
-              'form-input', 'toggle', 'slider', 'alert', 'sheet', 'menu', 'toolbar',
-              'search-bar', 'segmented-control', 'stepper', 'picker', 'avatar', 'badge',
-              'tooltip', 'checkbox', 'radio-group', 'textarea', 'progress-ring',
-              'skeleton', 'toast', 'accordion', 'divider', 'breadcrumb'
-            ].map((component) => (
-              <span
-                key={component}
-                className="px-4 py-2 bg-[var(--background)] border border-[var(--border)] rounded-full text-sm font-medium text-[var(--foreground-muted)]"
-              >
-                {component}
-              </span>
-            ))}
           </div>
         </div>
       </section>
 
       {/* How it Works */}
       <section className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4">How it works</h2>
             <p className="text-[var(--foreground-muted)]">Get started in three simple steps</p>
@@ -183,7 +180,7 @@ export default function Home() {
             <div className="flex gap-6 items-start">
               <div className="w-10 h-10 rounded-full bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] flex items-center justify-center font-semibold flex-shrink-0">1</div>
               <div>
-                <h3 className="text-xl font-semibold mb-2">Configure your IDE</h3>
+                <h3 className="text-xl font-semibold mb-2">Configure it</h3>
                 <p className="text-[var(--foreground-muted)]">Add Apple UI MCP to Claude Desktop, Cursor, or any MCP-compatible tool with your API key.</p>
               </div>
             </div>
@@ -207,24 +204,23 @@ export default function Home() {
 
       {/* Pricing Section */}
       <section id="pricing" className="py-24 px-6 bg-[var(--background-secondary)]">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4">Simple pricing</h2>
             <p className="text-[var(--foreground-muted)]">One plan, everything included</p>
           </div>
           <div className="max-w-md mx-auto p-8 bg-[var(--background)] rounded-2xl border border-[var(--border)]">
             <div className="text-center mb-8">
-              <div className="text-5xl font-semibold mb-2">$7.99</div>
+              <div className="text-5xl font-semibold mb-2">$19.99</div>
               <div className="text-[var(--foreground-muted)]">per month</div>
             </div>
             <ul className="space-y-4 mb-8">
               {[
-                'All 3 MCP tools',
+                'Review Tool',
+                'Generate Tool',
+                'Guide Tool',
                 '30+ component types',
-                '5 platform outputs (React, SwiftUI, etc.)',
-                'Unlimited requests',
-                'Design token access',
-                'Priority support'
+                'Multiple platform outputs (React, SwiftUI, etc.)'
               ].map((feature) => (
                 <li key={feature} className="flex items-center gap-3">
                   <svg className="w-5 h-5 text-[var(--accent-green)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -240,14 +236,14 @@ export default function Home() {
             >
               Get started
             </button>
-            <p className="text-center text-sm text-[var(--foreground-subtle)] mt-4">Cancel anytime. No questions asked.</p>
+            <p className="text-center text-sm text-[var(--foreground-subtle)] mt-4">Cancel anytime.</p>
           </div>
         </div>
       </section>
 
       {/* Docs Section */}
       <section id="docs" className="py-24 px-6">
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-semibold mb-4">Quick setup</h2>
             <p className="text-[var(--foreground-muted)]">Add this to your MCP client configuration</p>
@@ -267,27 +263,18 @@ export default function Home() {
 }`}
             </pre>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <a href="#" className="px-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--taupe-100)] dark:hover:bg-[var(--taupe-800)] transition-colors">
-              Claude Desktop guide
-            </a>
-            <a href="#" className="px-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--taupe-100)] dark:hover:bg-[var(--taupe-800)] transition-colors">
-              Cursor guide
-            </a>
-            <a href="#" className="px-4 py-2 bg-[var(--background-secondary)] border border-[var(--border)] rounded-full text-sm font-medium hover:bg-[var(--taupe-100)] dark:hover:bg-[var(--taupe-800)] transition-colors">
-              API reference
-            </a>
-          </div>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="py-12 px-6 border-t border-[var(--border)]">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="max-w-5xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] flex items-center justify-center">
-              <span className="text-[var(--taupe-50)] dark:text-[var(--taupe-950)] text-xs font-bold">UI</span>
-            </div>
+            <img  
+              src="/logo.png"
+              alt="Apple UI MCP"
+              className="w-8 h-8"
+            />
             <span className="font-medium">Apple UI MCP</span>
           </div>
           <div className="flex gap-8 text-sm text-[var(--foreground-muted)]">
@@ -295,7 +282,7 @@ export default function Home() {
             <a href="#pricing" className="hover:text-[var(--foreground)]">Pricing</a>
             <a href="#docs" className="hover:text-[var(--foreground)]">Docs</a>
           </div>
-          <p className="text-sm text-[var(--foreground-subtle)]">2024 Apple UI MCP</p>
+          <p className="text-sm text-[var(--foreground-subtle)]">© 2026 TrueSmartTech OÜ. All rights reserved.</p>
         </div>
       </footer>
     </div>

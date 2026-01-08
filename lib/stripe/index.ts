@@ -6,7 +6,7 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
   typescript: true,
 });
 
-// Price ID for the €7.99/month subscription
+// Price ID for the €19.99/month subscription
 export const PRICE_ID = process.env.STRIPE_PRICE_ID || '';
 
 // App URL for redirects
