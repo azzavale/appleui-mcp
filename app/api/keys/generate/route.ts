@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, users, subscriptions } from '@/lib/db';
 import { createApiKeyForUser } from '@/lib/auth/api-keys';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,18 +31,30 @@ export async function POST(request: NextRequest) {
 
     const userId = user[0].id;
 
-    // Check subscription status
+    // Check subscription status - get most recent subscription
     const userSubscription = await db
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.userId, userId))
-      .orderBy(subscriptions.createdAt)
+      .orderBy(desc(subscriptions.createdAt))
       .limit(1);
 
-    const validStatuses = ['active', 'trialing'];
-    if (userSubscription.length === 0 || !validStatuses.includes(userSubscription[0].status)) {
+    if (userSubscription.length === 0) {
       return NextResponse.json(
-        { error: 'Active subscription required to generate API keys' },
+        { error: 'No subscription found' },
+        { status: 403 }
+      );
+    }
+
+    const { status, currentPeriodEnd } = userSubscription[0];
+    const periodExpired = currentPeriodEnd && new Date(currentPeriodEnd) < new Date();
+    const activeStatuses = ['active', 'trialing'];
+    const isActive = activeStatuses.includes(status) && !periodExpired;
+    const isCanceledButPaid = status === 'canceled' && !periodExpired;
+
+    if (!isActive && !isCanceledButPaid) {
+      return NextResponse.json(
+        { error: periodExpired ? 'Subscription expired' : 'Active subscription required to generate API keys' },
         { status: 403 }
       );
     }

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db, users, subscriptions } from '@/lib/db';
 import { getUserApiKeys } from '@/lib/auth/api-keys';
-import { eq } from 'drizzle-orm';
+import { eq, desc } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -31,12 +31,12 @@ export async function GET(request: NextRequest) {
 
     const userId = user[0].id;
 
-    // Get subscription
+    // Get subscription - get most recent subscription
     const userSubscription = await db
       .select()
       .from(subscriptions)
       .where(eq(subscriptions.userId, userId))
-      .orderBy(subscriptions.createdAt)
+      .orderBy(desc(subscriptions.createdAt))
       .limit(1);
 
     // Get API keys

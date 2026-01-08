@@ -205,7 +205,6 @@ export default function Dashboard() {
   const [newApiKey, setNewApiKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
   const [error, setError] = useState('');
 
   // Modal states
@@ -271,35 +270,6 @@ export default function Dashboard() {
       setError('Something went wrong. Please try again.');
     } finally {
       setIsGenerating(false);
-    }
-  };
-
-  const syncSubscription = async () => {
-    if (!email) return;
-
-    setIsSyncing(true);
-    setError('');
-
-    try {
-      const response = await fetch('/api/repair-subscription', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || 'Failed to sync subscription');
-        return;
-      }
-
-      // Refresh user data to show updated subscription
-      await fetchUserData();
-    } catch {
-      setError('Something went wrong. Please try again.');
-    } finally {
-      setIsSyncing(false);
     }
   };
 
@@ -416,25 +386,13 @@ export default function Dashboard() {
             <div className="p-6 bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Subscription</h2>
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    userData.subscriptionStatus === 'active' || userData.subscriptionStatus === 'trialing'
-                      ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                      : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
-                  }`}>
-                    {userData.subscriptionStatus}
-                  </span>
-                  <button
-                    onClick={syncSubscription}
-                    disabled={isSyncing}
-                    className="p-1.5 text-[var(--foreground-muted)] hover:text-[var(--foreground)] hover:bg-[var(--background)] rounded-lg transition-all disabled:opacity-50"
-                    title="Sync with Stripe"
-                  >
-                    <svg className={`w-4 h-4 ${isSyncing ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                  </button>
-                </div>
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  userData.subscriptionStatus === 'active' || userData.subscriptionStatus === 'trialing'
+                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
+                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
+                }`}>
+                  {userData.subscriptionStatus}
+                </span>
               </div>
               <p className="text-[var(--foreground-muted)] text-sm">
                 Email: {userData.email}
@@ -443,15 +401,6 @@ export default function Dashboard() {
                 <p className="text-[var(--foreground-muted)] text-sm">
                   Renews: {new Date(userData.currentPeriodEnd).toLocaleDateString()}
                 </p>
-              )}
-
-              {/* Sync hint for non-active subscriptions */}
-              {userData.subscriptionStatus !== 'active' && userData.subscriptionStatus !== 'trialing' && (
-                <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl">
-                  <p className="text-amber-700 dark:text-amber-300 text-xs">
-                    <strong>Subscription issue?</strong> If you recently paid, click the sync button above to refresh your status from Stripe.
-                  </p>
-                </div>
               )}
             </div>
 
