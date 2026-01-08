@@ -1,7 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
-import { z } from 'zod';
 
 import { reviewDesign, designReviewSchema } from '@/lib/mcp/tools/designReview';
 import { generateComponent, componentGeneratorSchema } from '@/lib/mcp/tools/componentGenerator';
@@ -10,121 +7,99 @@ import { allResources, getResource } from '@/lib/mcp/resources';
 import { allPrompts } from '@/lib/mcp/prompts';
 import { validateApiKey, recordApiKeyUsage } from '@/lib/auth/api-keys';
 
-function createServer(): McpServer {
-  const server = new McpServer({
-    name: 'appleuimcp',
-    version: '1.0.0',
-  });
+// MCP Protocol version
+const PROTOCOL_VERSION = '2024-11-05';
+const SUPPORTED_VERSIONS = ['2024-11-05', '2024-10-07'];
 
-  // Register Design Review Tool
-  server.tool(
-    'review_design',
-    'Analyze code or design for Apple HIG compliance and suggest improvements',
-    designReviewSchema.shape,
-    async (args) => {
-      try {
-        const input = designReviewSchema.parse(args);
-        const result = reviewDesign(input);
-        return {
-          content: [{ type: 'text' as const, text: formatReviewResult(result) }],
-        };
-      } catch (error) {
-        return {
-          content: [{ type: 'text' as const, text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
-          isError: true,
-        };
-      }
-    }
-  );
-
-  // Register Component Generator Tool
-  server.tool(
-    'generate_component',
-    'Generate Apple-styled UI components for React, SwiftUI, Tailwind, or CSS',
-    componentGeneratorSchema.shape,
-    async (args) => {
-      try {
-        const input = componentGeneratorSchema.parse(args);
-        const result = generateComponent(input);
-        return {
-          content: [{ type: 'text' as const, text: formatComponentResult(result) }],
-        };
-      } catch (error) {
-        return {
-          content: [{ type: 'text' as const, text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
-          isError: true,
-        };
-      }
-    }
-  );
-
-  // Register Style Guide Reference Tool
-  server.tool(
-    'get_style_guide',
-    'Get Apple Human Interface Guidelines for specific design topics',
-    styleGuideSchema.shape,
-    async (args) => {
-      try {
-        const input = styleGuideSchema.parse(args);
-        const result = getStyleGuide(input);
-        return {
-          content: [{ type: 'text' as const, text: formatStyleGuideResult(result) }],
-        };
-      } catch (error) {
-        return {
-          content: [{ type: 'text' as const, text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
-          isError: true,
-        };
-      }
-    }
-  );
-
-  // Register Resources
-  const resourceConfigs = [
-    { uri: 'appleuimcp://colors/{category}', desc: 'Apple color tokens' },
-    { uri: 'appleuimcp://typography/{platform}', desc: 'Apple typography scale' },
-    { uri: 'appleuimcp://spacing', desc: 'Apple spacing system' },
-    { uri: 'appleuimcp://animations', desc: 'Apple animations' },
-    { uri: 'appleuimcp://shadows', desc: 'Apple shadows' },
-    { uri: 'appleuimcp://materials', desc: 'Apple materials' },
-  ];
-
-  for (const { uri, desc } of resourceConfigs) {
-    server.resource(uri, desc, async (resourceUri) => {
-      const resource = getResource(resourceUri.href);
-      if (!resource) {
-        throw new Error(`Resource not found: ${resourceUri.href}`);
-      }
-      return {
-        contents: [{ uri: resourceUri.href, mimeType: resource.mimeType, text: resource.getData() }],
-      };
-    });
-  }
-
-  // Register Prompts
-  for (const prompt of allPrompts) {
-    const argsSchema: Record<string, z.ZodType> = {};
-    for (const arg of prompt.arguments) {
-      argsSchema[arg.name] = arg.required
-        ? z.string().describe(arg.description)
-        : z.string().optional().describe(arg.description);
-    }
-
-    server.prompt(prompt.name, prompt.description, argsSchema, async (args) => {
-      const stringArgs: Record<string, string> = {};
-      for (const [key, value] of Object.entries(args)) {
-        if (typeof value === 'string') {
-          stringArgs[key] = value;
+// Tool definitions for MCP
+const toolDefinitions = [
+  {
+    name: 'review_design',
+    description: 'Analyze code or design for Apple HIG compliance and suggest improvements',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        code: { type: 'string', description: 'The code to review' },
+        platform: {
+          type: 'string',
+          enum: ['ios', 'macos', 'visionos', 'watchos'],
+          description: 'Target Apple platform'
+        },
+        focus: {
+          type: 'array',
+          items: { type: 'string', enum: ['colors', 'typography', 'spacing', 'layout', 'accessibility', 'animations'] },
+          description: 'Areas to focus review on'
         }
-      }
-      return {
-        messages: [{ role: 'user' as const, content: { type: 'text' as const, text: prompt.getPrompt(stringArgs) } }],
-      };
-    });
+      },
+      required: ['code']
+    }
+  },
+  {
+    name: 'generate_component',
+    description: 'Generate Apple-styled UI components for React, SwiftUI, Tailwind, or CSS',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        type: {
+          type: 'string',
+          enum: ['button', 'card', 'input', 'modal', 'navigation', 'list', 'toggle', 'slider'],
+          description: 'Component type to generate'
+        },
+        variant: {
+          type: 'string',
+          enum: ['primary', 'secondary', 'tertiary', 'destructive'],
+          description: 'Visual variant'
+        },
+        platform: {
+          type: 'string',
+          enum: ['react', 'swiftui', 'tailwind', 'css'],
+          description: 'Output platform/framework'
+        },
+        darkMode: { type: 'boolean', description: 'Include dark mode support' }
+      },
+      required: ['type', 'platform']
+    }
+  },
+  {
+    name: 'get_style_guide',
+    description: 'Get Apple Human Interface Guidelines for specific design topics',
+    inputSchema: {
+      type: 'object' as const,
+      properties: {
+        topic: {
+          type: 'string',
+          enum: ['colors', 'typography', 'spacing', 'layout', 'icons', 'motion', 'accessibility'],
+          description: 'Design topic'
+        },
+        platform: {
+          type: 'string',
+          enum: ['ios', 'macos', 'visionos', 'watchos'],
+          description: 'Target platform'
+        }
+      },
+      required: ['topic']
+    }
   }
+];
 
-  return server;
-}
+// Resource definitions
+const resourceDefinitions = allResources.map(r => ({
+  uri: r.uri,
+  name: r.name,
+  description: r.description,
+  mimeType: r.mimeType,
+}));
+
+// Prompt definitions
+const promptDefinitions = allPrompts.map(p => ({
+  name: p.name,
+  description: p.description,
+  arguments: p.arguments.map(a => ({
+    name: a.name,
+    description: a.description,
+    required: a.required
+  }))
+}));
 
 // Formatting helpers
 function formatReviewResult(result: ReturnType<typeof reviewDesign>): string {
@@ -206,6 +181,148 @@ export async function DELETE() {
   return NextResponse.json({ success: true }, { headers: corsHeaders });
 }
 
+// JSON-RPC request/response types
+interface JsonRpcRequest {
+  jsonrpc: '2.0';
+  method: string;
+  params?: Record<string, unknown>;
+  id?: string | number | null;
+}
+
+interface JsonRpcResponse {
+  jsonrpc: '2.0';
+  result?: unknown;
+  error?: { code: number; message: string; data?: unknown };
+  id: string | number | null;
+}
+
+// Handle individual JSON-RPC methods
+async function handleMethod(method: string, params: Record<string, unknown> = {}): Promise<unknown> {
+  switch (method) {
+    case 'initialize':
+      return handleInitialize(params);
+    case 'initialized':
+      return {}; // Notification, no response needed
+    case 'tools/list':
+      return { tools: toolDefinitions };
+    case 'tools/call':
+      return handleToolCall(params);
+    case 'resources/list':
+      return { resources: resourceDefinitions };
+    case 'resources/read':
+      return handleResourceRead(params);
+    case 'prompts/list':
+      return { prompts: promptDefinitions };
+    case 'prompts/get':
+      return handlePromptGet(params);
+    case 'ping':
+      return {};
+    default:
+      throw { code: -32601, message: `Method not found: ${method}` };
+  }
+}
+
+function handleInitialize(params: Record<string, unknown>) {
+  const clientVersion = params.protocolVersion as string | undefined;
+
+  // Check if client version is supported
+  if (clientVersion && !SUPPORTED_VERSIONS.includes(clientVersion)) {
+    console.warn(`Client requested unsupported protocol version: ${clientVersion}`);
+  }
+
+  return {
+    protocolVersion: PROTOCOL_VERSION,
+    capabilities: {
+      tools: { listChanged: false },
+      resources: { subscribe: false, listChanged: false },
+      prompts: { listChanged: false },
+    },
+    serverInfo: {
+      name: 'appleuimcp',
+      version: '1.0.0',
+    },
+  };
+}
+
+async function handleToolCall(params: Record<string, unknown>) {
+  const toolName = params.name as string;
+  const args = (params.arguments || {}) as Record<string, unknown>;
+
+  switch (toolName) {
+    case 'review_design': {
+      try {
+        const input = designReviewSchema.parse(args);
+        const result = reviewDesign(input);
+        return {
+          content: [{ type: 'text', text: formatReviewResult(result) }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+          isError: true,
+        };
+      }
+    }
+    case 'generate_component': {
+      try {
+        const input = componentGeneratorSchema.parse(args);
+        const result = generateComponent(input);
+        return {
+          content: [{ type: 'text', text: formatComponentResult(result) }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+          isError: true,
+        };
+      }
+    }
+    case 'get_style_guide': {
+      try {
+        const input = styleGuideSchema.parse(args);
+        const result = getStyleGuide(input);
+        return {
+          content: [{ type: 'text', text: formatStyleGuideResult(result) }],
+        };
+      } catch (error) {
+        return {
+          content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+          isError: true,
+        };
+      }
+    }
+    default:
+      throw { code: -32601, message: `Unknown tool: ${toolName}` };
+  }
+}
+
+async function handleResourceRead(params: Record<string, unknown>) {
+  const uri = params.uri as string;
+  const resource = getResource(uri);
+
+  if (!resource) {
+    throw { code: -32602, message: `Resource not found: ${uri}` };
+  }
+
+  return {
+    contents: [{ uri, mimeType: resource.mimeType, text: resource.getData() }],
+  };
+}
+
+async function handlePromptGet(params: Record<string, unknown>) {
+  const promptName = params.name as string;
+  const args = (params.arguments || {}) as Record<string, string>;
+
+  const prompt = allPrompts.find(p => p.name === promptName);
+  if (!prompt) {
+    throw { code: -32602, message: `Prompt not found: ${promptName}` };
+  }
+
+  return {
+    messages: [{ role: 'user', content: { type: 'text', text: prompt.getPrompt(args) } }],
+  };
+}
+
 export async function POST(request: NextRequest) {
   // API Key Authentication
   const authHeader = request.headers.get('authorization');
@@ -253,116 +370,28 @@ export async function POST(request: NextRequest) {
     recordApiKeyUsage(validation.apiKeyId).catch(() => {});
   }
 
-  let server: McpServer | undefined;
-  let transport: StreamableHTTPServerTransport | undefined;
-
   try {
-    const body = await request.json();
+    const body = await request.json() as JsonRpcRequest | JsonRpcRequest[];
 
-    // Create a fresh server and transport for each request (stateless)
-    server = createServer();
-    transport = new StreamableHTTPServerTransport({
-      sessionIdGenerator: undefined, // CRITICAL: undefined enables stateless mode
-    });
-
-    // Connect server to transport
-    await server.connect(transport);
-
-    // Create a mock request/response for the transport
-    const headersObj = Object.fromEntries(request.headers.entries());
-    const mockReq = {
-      method: 'POST',
-      url: request.url,
-      headers: headersObj,
-      body,
-      // Make headers accessible via get() method like Node.js IncomingMessage
-      get: (name: string) => headersObj[name.toLowerCase()],
-      header: (name: string) => headersObj[name.toLowerCase()],
-    };
-
-    // Collect the response using a Promise to properly wait for completion
-    let responseBody: string = '';
-    let responseStatus = 200;
-    let responseHeaders: Record<string, string> = {};
-    let resolveResponse: () => void;
-    const responseComplete = new Promise<void>((resolve) => {
-      resolveResponse = resolve;
-    });
-
-    const mockRes = {
-      headersSent: false,
-      statusCode: 200,
-      setHeader: (key: string, value: string) => {
-        responseHeaders[key] = value;
-        return mockRes;
-      },
-      getHeader: (key: string) => responseHeaders[key],
-      writeHead: (statusCode: number, statusMessage?: string | Record<string, string>, headers?: Record<string, string>) => {
-        responseStatus = statusCode;
-        mockRes.statusCode = statusCode;
-        // Handle overloaded signature: writeHead(status, headers) or writeHead(status, message, headers)
-        const hdrs = typeof statusMessage === 'object' ? statusMessage : headers;
-        if (hdrs) {
-          Object.assign(responseHeaders, hdrs);
-        }
-        return mockRes;
-      },
-      flushHeaders: () => {},
-      status: (code: number) => {
-        responseStatus = code;
-        mockRes.statusCode = code;
-        return mockRes;
-      },
-      json: (data: unknown) => {
-        responseBody = JSON.stringify(data);
-        resolveResponse();
-        return mockRes;
-      },
-      write: (chunk: string | Buffer) => {
-        responseBody += typeof chunk === 'string' ? chunk : chunk.toString();
-        return true;
-      },
-      end: (chunk?: string | Buffer) => {
-        if (chunk) {
-          responseBody += typeof chunk === 'string' ? chunk : chunk.toString();
-        }
-        mockRes.headersSent = true;
-        resolveResponse();
-      },
-      on: () => mockRes,
-      once: () => mockRes,
-      emit: () => false,
-      removeListener: () => mockRes,
-    };
-
-    // Handle the request and wait for response completion
-    await transport.handleRequest(mockReq as any, mockRes as any, body);
-
-    // Wait for the response to be complete (with timeout)
-    await Promise.race([
-      responseComplete,
-      new Promise<void>((_, reject) =>
-        setTimeout(() => reject(new Error('Response timeout')), 30000)
-      ),
-    ]);
-
-    // Ensure we have a valid response body
-    if (!responseBody) {
-      return NextResponse.json({
-        jsonrpc: '2.0',
-        error: { code: -32603, message: 'Empty response from MCP server' },
-        id: null,
-      }, { status: 500, headers: corsHeaders });
+    // Handle batch requests
+    if (Array.isArray(body)) {
+      const responses: JsonRpcResponse[] = [];
+      for (const req of body) {
+        const response = await processRequest(req);
+        if (response) responses.push(response);
+      }
+      return NextResponse.json(responses, { headers: corsHeaders });
     }
 
-    return new NextResponse(responseBody, {
-      status: responseStatus,
-      headers: {
-        ...corsHeaders,
-        ...responseHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
+    // Handle single request
+    const response = await processRequest(body);
+
+    // Notifications don't get responses
+    if (!response) {
+      return new NextResponse(null, { status: 204, headers: corsHeaders });
+    }
+
+    return NextResponse.json(response, { headers: corsHeaders });
   } catch (error) {
     console.error('MCP Error:', error);
     return NextResponse.json({
@@ -370,13 +399,39 @@ export async function POST(request: NextRequest) {
       error: { code: -32603, message: error instanceof Error ? error.message : 'Internal error' },
       id: null,
     }, { status: 500, headers: corsHeaders });
-  } finally {
-    // Cleanup to prevent memory leaks
-    if (transport) {
-      await transport.close().catch(() => {});
+  }
+}
+
+async function processRequest(req: JsonRpcRequest): Promise<JsonRpcResponse | null> {
+  // Notifications (no id) don't get responses
+  const isNotification = req.id === undefined;
+
+  try {
+    const result = await handleMethod(req.method, req.params as Record<string, unknown>);
+
+    if (isNotification) {
+      return null;
     }
-    if (server) {
-      await server.close().catch(() => {});
+
+    return {
+      jsonrpc: '2.0',
+      result,
+      id: req.id ?? null,
+    };
+  } catch (error) {
+    if (isNotification) {
+      console.error(`Error handling notification ${req.method}:`, error);
+      return null;
     }
+
+    const rpcError = error as { code?: number; message?: string };
+    return {
+      jsonrpc: '2.0',
+      error: {
+        code: rpcError.code || -32603,
+        message: rpcError.message || 'Internal error',
+      },
+      id: req.id ?? null,
+    };
   }
 }
