@@ -29,7 +29,7 @@ export const apiKeys = pgTable('api_keys', {
   id: uuid('id').primaryKey().defaultRandom(),
   userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
   keyHash: text('key_hash').notNull().unique(), // SHA-256 hash of the key
-  keyPrefix: text('key_prefix').notNull(), // "appleui_sk_xxxx..." for display
+  keyPrefix: text('key_prefix').notNull(), // "appleuimcp_sk_xxxx..." for display
   name: text('name').default('Default API Key'),
   requestCount: integer('request_count').default(0),
   lastUsedAt: timestamp('last_used_at'),

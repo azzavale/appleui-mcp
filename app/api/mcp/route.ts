@@ -12,7 +12,7 @@ import { validateApiKey, recordApiKeyUsage } from '@/lib/auth/api-keys';
 
 function createServer(): McpServer {
   const server = new McpServer({
-    name: 'appleui-mcp',
+    name: 'appleuimcp',
     version: '1.0.0',
   });
 
@@ -81,12 +81,12 @@ function createServer(): McpServer {
 
   // Register Resources
   const resourceConfigs = [
-    { uri: 'appleui://colors/{category}', desc: 'Apple color tokens' },
-    { uri: 'appleui://typography/{platform}', desc: 'Apple typography scale' },
-    { uri: 'appleui://spacing', desc: 'Apple spacing system' },
-    { uri: 'appleui://animations', desc: 'Apple animations' },
-    { uri: 'appleui://shadows', desc: 'Apple shadows' },
-    { uri: 'appleui://materials', desc: 'Apple materials' },
+    { uri: 'appleuimcp://colors/{category}', desc: 'Apple color tokens' },
+    { uri: 'appleuimcp://typography/{platform}', desc: 'Apple typography scale' },
+    { uri: 'appleuimcp://spacing', desc: 'Apple spacing system' },
+    { uri: 'appleuimcp://animations', desc: 'Apple animations' },
+    { uri: 'appleuimcp://shadows', desc: 'Apple shadows' },
+    { uri: 'appleuimcp://materials', desc: 'Apple materials' },
   ];
 
   for (const { uri, desc } of resourceConfigs) {
@@ -195,7 +195,7 @@ export async function OPTIONS() {
 
 export async function GET() {
   return NextResponse.json({
-    name: 'appleui-mcp',
+    name: 'appleuimcp',
     version: '1.0.0',
     description: 'Apple UI/UX Design Guidelines MCP Server',
     capabilities: ['tools', 'resources', 'prompts'],

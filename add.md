@@ -1,4 +1,4 @@
-claude mcp add --transport http appleui https://appleui-mcp.vercel.app/mcp
+claude mcp add --transport http appleuimcp https://appleuimcp.vercel.com/mcp
 
 Created both folders. Here's a prompt you can use for testing:
 
@@ -21,10 +21,10 @@ Created both folders. Here's a prompt you can use for testing:
   2. Without MCP - Navigate to the test-without-mcp folder and start a fresh Claude Code session there (no MCP configured).
 
   To disable the MCP temporarily for the "without" test, you can run:
-  claude mcp remove appleui
+  claude mcp remove appleuimcp
 
   And re-add it after:
-  claude mcp add --transport http appleui https://appleui-mcp.vercel.app/mcp
+  claude mcp add --transport http appleuimcp https://appleuimcp.vercel.com/mcp
 
   Or simply start Claude in a different directory that doesn't inherit the config.
 

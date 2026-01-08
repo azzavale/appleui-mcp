@@ -519,8 +519,8 @@ export default function Dashboard() {
                 <pre className="text-xs sm:text-sm font-mono">
 {`{
   "mcpServers": {
-    "appleui": {
-      "url": "https://appleui-mcp.vercel.app/mcp",
+    "appleuimcp": {
+      "url": "https://appleuimcp.com/mcp",
       "transport": "streamable-http",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"

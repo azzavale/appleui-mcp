@@ -11,28 +11,28 @@ export interface Resource {
 // Color Resources
 export const colorResources: Resource[] = [
   {
-    uri: 'appleui://colors/system',
+    uri: 'appleuimcp://colors/system',
     name: 'Apple System Colors',
     description: 'Apple system colors with light and dark mode variants',
     mimeType: 'application/json',
     getData: () => JSON.stringify(colorTokens.system, null, 2),
   },
   {
-    uri: 'appleui://colors/semantic',
+    uri: 'appleuimcp://colors/semantic',
     name: 'Apple Semantic Colors',
     description: 'Semantic colors for backgrounds, labels, fills, and separators',
     mimeType: 'application/json',
     getData: () => JSON.stringify(colorTokens.semantic, null, 2),
   },
   {
-    uri: 'appleui://colors/gradients',
+    uri: 'appleuimcp://colors/gradients',
     name: 'Apple Gradient Presets',
     description: 'Pre-defined gradient color combinations',
     mimeType: 'application/json',
     getData: () => JSON.stringify(colorTokens.gradients, null, 2),
   },
   {
-    uri: 'appleui://colors/all',
+    uri: 'appleuimcp://colors/all',
     name: 'Complete Color System',
     description: 'All Apple color tokens including system, semantic, and gradients',
     mimeType: 'application/json',
@@ -43,7 +43,7 @@ export const colorResources: Resource[] = [
 // Typography Resources
 export const typographyResources: Resource[] = [
   {
-    uri: 'appleui://typography/ios',
+    uri: 'appleuimcp://typography/ios',
     name: 'iOS Typography Scale',
     description: 'iOS typography scale with sizes, weights, and line heights',
     mimeType: 'application/json',
@@ -54,7 +54,7 @@ export const typographyResources: Resource[] = [
     }, null, 2),
   },
   {
-    uri: 'appleui://typography/macos',
+    uri: 'appleuimcp://typography/macos',
     name: 'macOS Typography Scale',
     description: 'macOS typography scale with sizes, weights, and line heights',
     mimeType: 'application/json',
@@ -65,7 +65,7 @@ export const typographyResources: Resource[] = [
     }, null, 2),
   },
   {
-    uri: 'appleui://typography/web',
+    uri: 'appleuimcp://typography/web',
     name: 'Web Typography Scale',
     description: 'Web-optimized typography scale in pixels',
     mimeType: 'application/json',
@@ -76,7 +76,7 @@ export const typographyResources: Resource[] = [
     }, null, 2),
   },
   {
-    uri: 'appleui://typography/all',
+    uri: 'appleuimcp://typography/all',
     name: 'Complete Typography System',
     description: 'All typography tokens for all platforms',
     mimeType: 'application/json',
@@ -87,21 +87,21 @@ export const typographyResources: Resource[] = [
 // Spacing Resources
 export const spacingResources: Resource[] = [
   {
-    uri: 'appleui://spacing',
+    uri: 'appleuimcp://spacing',
     name: 'Apple Spacing System',
     description: '8pt grid spacing system with layout and component values',
     mimeType: 'application/json',
     getData: () => JSON.stringify(spacingTokens, null, 2),
   },
   {
-    uri: 'appleui://spacing/scale',
+    uri: 'appleuimcp://spacing/scale',
     name: 'Spacing Scale',
     description: 'Base spacing scale values (xxs to xxxl)',
     mimeType: 'application/json',
     getData: () => JSON.stringify(spacingTokens.scale, null, 2),
   },
   {
-    uri: 'appleui://spacing/components',
+    uri: 'appleuimcp://spacing/components',
     name: 'Component Spacing',
     description: 'Spacing values for common UI components',
     mimeType: 'application/json',
@@ -112,28 +112,28 @@ export const spacingResources: Resource[] = [
 // Animation Resources
 export const animationResources: Resource[] = [
   {
-    uri: 'appleui://animations',
+    uri: 'appleuimcp://animations',
     name: 'Apple Animation System',
     description: 'Spring animations, timing curves, and motion patterns',
     mimeType: 'application/json',
     getData: () => JSON.stringify(animationTokens, null, 2),
   },
   {
-    uri: 'appleui://animations/springs',
+    uri: 'appleuimcp://animations/springs',
     name: 'Spring Animations',
     description: 'Spring animation configurations for natural motion',
     mimeType: 'application/json',
     getData: () => JSON.stringify(animationTokens.springs, null, 2),
   },
   {
-    uri: 'appleui://animations/curves',
+    uri: 'appleuimcp://animations/curves',
     name: 'Bezier Curves',
     description: 'CSS cubic-bezier timing functions',
     mimeType: 'application/json',
     getData: () => JSON.stringify(animationTokens.bezierCurves, null, 2),
   },
   {
-    uri: 'appleui://animations/patterns',
+    uri: 'appleuimcp://animations/patterns',
     name: 'Animation Patterns',
     description: 'Common UI animation patterns with timing',
     mimeType: 'application/json',
@@ -144,14 +144,14 @@ export const animationResources: Resource[] = [
 // Shadow Resources
 export const shadowResources: Resource[] = [
   {
-    uri: 'appleui://shadows',
+    uri: 'appleuimcp://shadows',
     name: 'Apple Shadow System',
     description: 'Elevation levels and shadow specifications',
     mimeType: 'application/json',
     getData: () => JSON.stringify(shadowTokens, null, 2),
   },
   {
-    uri: 'appleui://shadows/css',
+    uri: 'appleuimcp://shadows/css',
     name: 'CSS Shadow Values',
     description: 'Pre-computed CSS box-shadow values',
     mimeType: 'application/json',
@@ -162,14 +162,14 @@ export const shadowResources: Resource[] = [
 // Material Resources
 export const materialResources: Resource[] = [
   {
-    uri: 'appleui://materials',
+    uri: 'appleuimcp://materials',
     name: 'Apple Materials',
     description: 'Blur and vibrancy material specifications',
     mimeType: 'application/json',
     getData: () => JSON.stringify(materialTokens, null, 2),
   },
   {
-    uri: 'appleui://materials/css',
+    uri: 'appleuimcp://materials/css',
     name: 'CSS Material Values',
     description: 'CSS backdrop-filter values for materials',
     mimeType: 'application/json',

@@ -2,7 +2,7 @@ import { randomBytes, createHash } from 'crypto';
 import { db, apiKeys, users, subscriptions } from '../db';
 import { eq, and, isNull, sql, desc } from 'drizzle-orm';
 
-const API_KEY_PREFIX = 'appleui_sk_';
+const API_KEY_PREFIX = 'appleuimcp_sk_';
 
 /**
  * Generate a new API key

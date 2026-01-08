@@ -9,7 +9,7 @@ import { allPrompts, getPrompt } from '../lib/mcp/prompts';
 
 export function createServer(): McpServer {
   const server = new McpServer({
-    name: 'appleui-mcp',
+    name: 'appleuimcp',
     version: '1.0.0',
   });
 
@@ -123,7 +123,7 @@ function registerTools(server: McpServer): void {
 function registerResources(server: McpServer): void {
   // Register resource templates for pattern matching
   server.resource(
-    'appleui://colors/{category}',
+    'appleuimcp://colors/{category}',
     'Apple color tokens by category (system, semantic, gradients, all)',
     async (uri) => {
       const resource = getResource(uri.href);
@@ -143,7 +143,7 @@ function registerResources(server: McpServer): void {
   );
 
   server.resource(
-    'appleui://typography/{platform}',
+    'appleuimcp://typography/{platform}',
     'Apple typography scale by platform (ios, macos, web, all)',
     async (uri) => {
       const resource = getResource(uri.href);
@@ -163,7 +163,7 @@ function registerResources(server: McpServer): void {
   );
 
   server.resource(
-    'appleui://spacing',
+    'appleuimcp://spacing',
     'Apple 8pt grid spacing system',
     async (uri) => {
       const resource = getResource(uri.href);
@@ -183,7 +183,7 @@ function registerResources(server: McpServer): void {
   );
 
   server.resource(
-    'appleui://animations',
+    'appleuimcp://animations',
     'Apple animation springs and timing curves',
     async (uri) => {
       const resource = getResource(uri.href);
@@ -203,7 +203,7 @@ function registerResources(server: McpServer): void {
   );
 
   server.resource(
-    'appleui://shadows',
+    'appleuimcp://shadows',
     'Apple shadow elevation levels',
     async (uri) => {
       const resource = getResource(uri.href);
@@ -223,7 +223,7 @@ function registerResources(server: McpServer): void {
   );
 
   server.resource(
-    'appleui://materials',
+    'appleuimcp://materials',
     'Apple blur materials and vibrancy effects',
     async (uri) => {
       const resource = getResource(uri.href);
