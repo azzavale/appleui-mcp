@@ -9,7 +9,7 @@ import { validateApiKey, recordApiKeyUsage } from '@/lib/auth/api-keys';
 
 // MCP Protocol version
 const PROTOCOL_VERSION = '2024-11-05';
-const SUPPORTED_VERSIONS = ['2024-11-05', '2024-10-07'];
+const SUPPORTED_VERSIONS = ['2024-11-05', '2024-10-07', '2025-11-25'];
 
 // Tool definitions for MCP
 const toolDefinitions = [
@@ -202,6 +202,7 @@ async function handleMethod(method: string, params: Record<string, unknown> = {}
     case 'initialize':
       return handleInitialize(params);
     case 'initialized':
+    case 'notifications/initialized':
       return {}; // Notification, no response needed
     case 'tools/list':
       return { tools: toolDefinitions };
