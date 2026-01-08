@@ -3,12 +3,12 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { z } from 'zod';
 
-import { reviewDesign, designReviewSchema } from '../src/tools/designReview.js';
-import { generateComponent, componentGeneratorSchema } from '../src/tools/componentGenerator.js';
-import { getStyleGuide, styleGuideSchema } from '../src/tools/styleGuideReference.js';
-import { allResources, getResource } from '../src/resources/index.js';
-import { allPrompts } from '../src/prompts/index.js';
-import { validateApiKey, recordApiKeyUsage } from '../lib/auth/api-keys.js';
+import { reviewDesign, designReviewSchema } from '../lib/mcp/tools/designReview';
+import { generateComponent, componentGeneratorSchema } from '../lib/mcp/tools/componentGenerator';
+import { getStyleGuide, styleGuideSchema } from '../lib/mcp/tools/styleGuideReference';
+import { allResources, getResource } from '../lib/mcp/resources';
+import { allPrompts } from '../lib/mcp/prompts';
+import { validateApiKey, recordApiKeyUsage } from '../lib/auth/api-keys';
 
 function createServer(): McpServer {
   const server = new McpServer({

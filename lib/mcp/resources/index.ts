@@ -1,4 +1,4 @@
-import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '../mcp-data';
+import { colorTokens, typographyTokens, spacingTokens, animationTokens, shadowTokens, materialTokens } from '@/lib/mcp/mcp-data';
 
 export interface Resource {
   uri: string;

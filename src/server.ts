@@ -1,11 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 
-import { reviewDesign, designReviewSchema } from './tools/designReview.js';
-import { generateComponent, componentGeneratorSchema } from './tools/componentGenerator.js';
-import { getStyleGuide, styleGuideSchema } from './tools/styleGuideReference.js';
-import { allResources, getResource } from './resources/index.js';
-import { allPrompts, getPrompt } from './prompts/index.js';
+import { reviewDesign, designReviewSchema } from '../lib/mcp/tools/designReview';
+import { generateComponent, componentGeneratorSchema } from '../lib/mcp/tools/componentGenerator';
+import { getStyleGuide, styleGuideSchema } from '../lib/mcp/tools/styleGuideReference';
+import { allResources, getResource } from '../lib/mcp/resources';
+import { allPrompts, getPrompt } from '../lib/mcp/prompts';
 
 export function createServer(): McpServer {
   const server = new McpServer({
