@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { constructWebhookEvent, mapSubscriptionStatus } from '@/lib/stripe';
+import { constructWebhookEvent, mapSubscriptionStatus, getSubscription } from '@/lib/stripe';
 import { db, users, subscriptions } from '@/lib/db';
 import { createApiKeyForUser, revokeAllUserApiKeys } from '@/lib/auth/api-keys';
 import { eq } from 'drizzle-orm';
@@ -111,8 +111,39 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     userId = newUser[0].id;
   }
 
-  // Create subscription record
-  // Note: subscription details will be filled in by the subscription.created/updated event
+  // Fetch subscription details from Stripe and create subscription record immediately
+  // This avoids race conditions with the subscription.created webhook
+  try {
+    const stripeSubscription = await getSubscription(subscriptionId);
+    const status = mapSubscriptionStatus(stripeSubscription.status);
+    const subscriptionItem = stripeSubscription.items.data[0];
+    const priceId = subscriptionItem?.price.id || '';
+    const currentPeriodStart = new Date((subscriptionItem?.current_period_start || 0) * 1000);
+    const currentPeriodEnd = new Date((subscriptionItem?.current_period_end || 0) * 1000);
+    const cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
+
+    // Check if subscription already exists
+    const existingSubscription = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.stripeSubscriptionId, subscriptionId))
+      .limit(1);
+
+    if (existingSubscription.length === 0) {
+      await db.insert(subscriptions).values({
+        userId,
+        stripeSubscriptionId: subscriptionId,
+        stripePriceId: priceId,
+        status,
+        currentPeriodStart,
+        currentPeriodEnd,
+        cancelAtPeriodEnd,
+      });
+      console.log(`Subscription ${subscriptionId} created for user ${email}: ${status}`);
+    }
+  } catch (error) {
+    console.error('Failed to create subscription record:', error);
+  }
 
   // Generate API key for the user
   const apiKey = await createApiKeyForUser(userId, 'Default API Key');
