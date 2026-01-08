@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { constructWebhookEvent, mapSubscriptionStatus, getSubscription } from '@/lib/stripe';
 import { db, users, subscriptions } from '@/lib/db';
-import { createApiKeyForUser, revokeAllUserApiKeys } from '@/lib/auth/api-keys';
+import { revokeAllUserApiKeys } from '@/lib/auth/api-keys';
 import { eq } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {
@@ -145,14 +145,8 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     console.error('Failed to create subscription record:', error);
   }
 
-  // Generate API key for the user
-  const apiKey = await createApiKeyForUser(userId, 'Default API Key');
-
-  if (apiKey) {
-    console.log(`API key created for user ${email}: ${apiKey.prefix}`);
-    // In production, you'd send this via email
-    // For now, it will be visible in the dashboard
-  }
+  // API key is no longer auto-generated - user will create it from dashboard
+  console.log(`User ${email} subscription activated - they can now generate API keys from dashboard`);
 }
 
 async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
