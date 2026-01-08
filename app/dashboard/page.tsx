@@ -386,22 +386,52 @@ export default function Dashboard() {
             <div className="p-6 bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Subscription</h2>
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  userData.subscriptionStatus === 'active' || userData.subscriptionStatus === 'trialing'
-                    ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
-                    : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
-                }`}>
-                  {userData.subscriptionStatus}
-                </span>
+                {(() => {
+                  const status = userData.subscriptionStatus;
+                  const periodEnd = userData.currentPeriodEnd ? new Date(userData.currentPeriodEnd) : null;
+                  const isPeriodActive = periodEnd && periodEnd > new Date();
+                  const isActive = (status === 'active' || status === 'trialing' || status === 'canceled') && isPeriodActive;
+
+                  return isActive ? (
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
+                      active
+                    </span>
+                  ) : (
+                    <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-200">
+                      inactive
+                    </span>
+                  );
+                })()}
               </div>
               <p className="text-[var(--foreground-muted)] text-sm">
                 Email: {userData.email}
               </p>
-              {userData.currentPeriodEnd && (
-                <p className="text-[var(--foreground-muted)] text-sm">
-                  Renews: {new Date(userData.currentPeriodEnd).toLocaleDateString()}
-                </p>
-              )}
+              {userData.currentPeriodEnd && (() => {
+                const status = userData.subscriptionStatus;
+                const periodEnd = new Date(userData.currentPeriodEnd);
+                const isPeriodActive = periodEnd > new Date();
+                const isCanceled = status === 'canceled';
+
+                if (isCanceled && isPeriodActive) {
+                  return (
+                    <p className="text-[var(--foreground-muted)] text-sm">
+                      Access until: {periodEnd.toLocaleDateString()}
+                    </p>
+                  );
+                } else if (isPeriodActive) {
+                  return (
+                    <p className="text-[var(--foreground-muted)] text-sm">
+                      Renews: {periodEnd.toLocaleDateString()}
+                    </p>
+                  );
+                } else {
+                  return (
+                    <p className="text-[var(--foreground-muted)] text-sm">
+                      Expired: {periodEnd.toLocaleDateString()}
+                    </p>
+                  );
+                }
+              })()}
             </div>
 
             {/* API Keys */}
