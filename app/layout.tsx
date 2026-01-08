@@ -1,6 +1,17 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import './globals.css';
 import { Analytics } from "@vercel/analytics/next"
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#faf9f7' },
+    { media: '(prefers-color-scheme: dark)', color: '#1c1917' },
+  ],
+};
 
 export const metadata: Metadata = {
   title: 'Apple UI MCP - Build Apple-Quality UI with AI',
@@ -12,6 +23,11 @@ export const metadata: Metadata = {
     description: 'Generate Apple HIG-compliant UI components with AI assistance.',
     type: 'website',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Apple UI MCP',
+  },
 };
 
 export default function RootLayout({
@@ -20,11 +36,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
+    <html lang="en" className="antialiased">
+      <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)] safe-area-inset">
         {children}
+        <Analytics />
       </body>
-      <Analytics/>
     </html>
   );
 }
