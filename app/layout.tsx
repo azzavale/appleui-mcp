@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Analytics } from "@vercel/analytics/next"
 
 export const metadata: Metadata = {
   title: 'Apple UI MCP - Build Apple-Quality UI with AI',
@@ -23,6 +24,7 @@ export default function RootLayout({
       <body className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
         {children}
       </body>
+      <Analytics/>
     </html>
   );
 }

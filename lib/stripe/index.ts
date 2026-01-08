@@ -26,7 +26,7 @@ export const stripe = {
   get webhooks() { return getStripeClient().webhooks; },
 } as unknown as Stripe;
 
-// Price ID for the €19.99/month subscription
+// Price ID for the €9.99/month subscription
 export const PRICE_ID = process.env.STRIPE_PRICE_ID || '';
 
 // App URL for redirects

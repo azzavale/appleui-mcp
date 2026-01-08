@@ -51,7 +51,7 @@ export default function Home() {
                   href="#pricing"
                   className="inline-flex items-center justify-center px-8 py-4 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full font-medium hover:opacity-90 transition-all"
                 >
-                  Start building for $19.99/mo
+                  Start building for €9.99/mo
                 </a>
               </div>
             </div>
@@ -211,7 +211,7 @@ export default function Home() {
           </div>
           <div className="max-w-md mx-auto p-8 bg-[var(--background)] rounded-2xl border border-[var(--border)]">
             <div className="text-center mb-8">
-              <div className="text-5xl font-semibold mb-2">$19.99</div>
+              <div className="text-5xl font-semibold mb-2">€9.99</div>
               <div className="text-[var(--foreground-muted)]">per month</div>
             </div>
             <ul className="space-y-4 mb-8">
