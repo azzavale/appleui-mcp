@@ -56,3 +56,7 @@ Or add to `~/.codex/config.toml`:
 [mcp_servers.appleuimcp]
 url = "https://appleuimcp.com/mcp"
 ```
+
+
+
+claude mcp add appleuimcp --transport http -H "Authorization: Bearer appleuimcp_sk_9143293bfee591ed52fed5ad53ff7611a079489306ded4346c5e1cffcacbbf6b" https://appleuimcp.com/mcp

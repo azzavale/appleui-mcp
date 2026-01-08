@@ -255,10 +255,15 @@ export async function POST(request: NextRequest) {
     await server.connect(transport);
 
     // Create a mock request/response for the transport
+    const headersObj = Object.fromEntries(request.headers.entries());
     const mockReq = {
       method: 'POST',
-      headers: Object.fromEntries(request.headers.entries()),
+      url: request.url,
+      headers: headersObj,
       body,
+      // Make headers accessible via get() method like Node.js IncomingMessage
+      get: (name: string) => headersObj[name.toLowerCase()],
+      header: (name: string) => headersObj[name.toLowerCase()],
     };
 
     // Collect the response
@@ -268,21 +273,46 @@ export async function POST(request: NextRequest) {
 
     const mockRes = {
       headersSent: false,
+      statusCode: 200,
       setHeader: (key: string, value: string) => {
         responseHeaders[key] = value;
+        return mockRes;
       },
+      getHeader: (key: string) => responseHeaders[key],
+      writeHead: (statusCode: number, statusMessage?: string | Record<string, string>, headers?: Record<string, string>) => {
+        responseStatus = statusCode;
+        mockRes.statusCode = statusCode;
+        // Handle overloaded signature: writeHead(status, headers) or writeHead(status, message, headers)
+        const hdrs = typeof statusMessage === 'object' ? statusMessage : headers;
+        if (hdrs) {
+          Object.assign(responseHeaders, hdrs);
+        }
+        return mockRes;
+      },
+      flushHeaders: () => {},
       status: (code: number) => {
         responseStatus = code;
+        mockRes.statusCode = code;
         return mockRes;
       },
       json: (data: unknown) => {
         responseBody = JSON.stringify(data);
         return mockRes;
       },
-      write: (chunk: string) => {
-        responseBody += chunk;
+      write: (chunk: string | Buffer) => {
+        responseBody += typeof chunk === 'string' ? chunk : chunk.toString();
+        return true;
       },
-      end: () => {},
+      end: (chunk?: string | Buffer) => {
+        if (chunk) {
+          responseBody += typeof chunk === 'string' ? chunk : chunk.toString();
+        }
+        mockRes.headersSent = true;
+      },
+      on: () => mockRes,
+      once: () => mockRes,
+      emit: () => false,
+      removeListener: () => mockRes,
     };
 
     await transport.handleRequest(mockReq as any, mockRes as any, body);
