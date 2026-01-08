@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    serverComponentsExternalPackages: ['@modelcontextprotocol/sdk'],
-  },
+  serverExternalPackages: ['@modelcontextprotocol/sdk'],
   // Allow existing API routes in /api folder
   async rewrites() {
     return [

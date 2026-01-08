@@ -1,10 +1,30 @@
 import Stripe from 'stripe';
 
-// Initialize Stripe client
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '', {
-  apiVersion: '2024-12-18.acacia',
-  typescript: true,
-});
+// Initialize Stripe client lazily to avoid errors during build
+let _stripe: Stripe | null = null;
+
+export function getStripeClient(): Stripe {
+  if (!_stripe) {
+    const secretKey = process.env.STRIPE_SECRET_KEY;
+    if (!secretKey) {
+      throw new Error('STRIPE_SECRET_KEY environment variable is not set');
+    }
+    _stripe = new Stripe(secretKey, {
+      apiVersion: '2025-12-15.clover',
+      typescript: true,
+    });
+  }
+  return _stripe;
+}
+
+// For backwards compatibility, export stripe as a getter
+// This will throw at runtime if called without env vars, but won't fail the build
+export const stripe = {
+  get checkout() { return getStripeClient().checkout; },
+  get subscriptions() { return getStripeClient().subscriptions; },
+  get billingPortal() { return getStripeClient().billingPortal; },
+  get webhooks() { return getStripeClient().webhooks; },
+} as unknown as Stripe;
 
 // Price ID for the €19.99/month subscription
 export const PRICE_ID = process.env.STRIPE_PRICE_ID || '';

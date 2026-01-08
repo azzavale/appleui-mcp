@@ -128,9 +128,11 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
   const customerId = subscription.customer as string;
   const subscriptionId = subscription.id;
   const status = mapSubscriptionStatus(subscription.status);
-  const priceId = subscription.items.data[0]?.price.id || '';
-  const currentPeriodStart = new Date(subscription.current_period_start * 1000);
-  const currentPeriodEnd = new Date(subscription.current_period_end * 1000);
+  const subscriptionItem = subscription.items.data[0];
+  const priceId = subscriptionItem?.price.id || '';
+  // Stripe API 2025-03-31+: billing periods are now at the item level
+  const currentPeriodStart = new Date((subscriptionItem?.current_period_start || 0) * 1000);
+  const currentPeriodEnd = new Date((subscriptionItem?.current_period_end || 0) * 1000);
   const cancelAtPeriodEnd = subscription.cancel_at_period_end;
 
   // Find user by Stripe customer ID
@@ -215,7 +217,8 @@ async function handleSubscriptionDeleted(subscription: Stripe.Subscription) {
 
 async function handlePaymentFailed(invoice: Stripe.Invoice) {
   const customerId = invoice.customer as string;
-  const subscriptionId = invoice.subscription as string;
+  // Stripe API 2025+: subscription is now in parent.subscription_details
+  const subscriptionId = (invoice.parent?.subscription_details?.subscription as string) || '';
 
   if (!subscriptionId) return;
 
