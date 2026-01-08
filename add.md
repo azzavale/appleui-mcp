@@ -1,31 +1,58 @@
-claude mcp add --transport http appleuimcp https://appleuimcp.vercel.com/mcp
+# Adding Apple UI MCP Server
 
-Created both folders. Here's a prompt you can use for testing:
+## Claude Code
 
-  ---
-  Test Prompt:
+```bash
+claude mcp add --transport http appleuimcp https://appleuimcp.com/mcp
+```
 
-  Create a single-page React Native mobile app for a "Daily Habits" tracker. The app should have:
-  - A header with the app title and current date
-  - A list of habits with checkboxes (e.g., "Drink water", "Exercise", "Read")
-  - A floating action button to add new habits
-  - A progress indicator showing completion percentage
-  - Support for dark mode
+Or add to `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "appleuimcp": {
+      "type": "http",
+      "url": "https://appleuimcp.com/mcp"
+    }
+  }
+}
+```
 
-  Make it look and feel like a native iOS app with proper styling.
+## Cursor
 
-  ---
-  To test:
+Add to `~/.cursor/mcp.json`:
+```json
+{
+  "mcpServers": {
+    "appleuimcp": {
+      "url": "https://appleuimcp.com/mcp"
+    }
+  }
+}
+```
 
-  1. With MCP - In the current directory (where the MCP is configured), start a new Claude Code session and use the prompt above. Claude should have access to the Apple UI tools.
-  2. Without MCP - Navigate to the test-without-mcp folder and start a fresh Claude Code session there (no MCP configured).
+## VS Code Copilot
 
-  To disable the MCP temporarily for the "without" test, you can run:
-  claude mcp remove appleuimcp
+Add to `.vscode/mcp.json`:
+```json
+{
+  "servers": {
+    "appleuimcp": {
+      "type": "http",
+      "url": "https://appleuimcp.com/mcp"
+    }
+  }
+}
+```
 
-  And re-add it after:
-  claude mcp add --transport http appleuimcp https://appleuimcp.vercel.com/mcp
+## OpenAI Codex
 
-  Or simply start Claude in a different directory that doesn't inherit the config.
+```bash
+codex mcp add appleuimcp --url https://appleuimcp.com/mcp
+```
 
-  Would you like me to generate the "with MCP" version now using the Apple UI tools?
+Or add to `~/.codex/config.toml`:
+```toml
+[mcp_servers.appleuimcp]
+url = "https://appleuimcp.com/mcp"
+```

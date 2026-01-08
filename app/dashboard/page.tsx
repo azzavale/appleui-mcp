@@ -513,22 +513,64 @@ export default function Dashboard() {
             <div className="p-4 sm:p-6 bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)]">
               <h2 className="text-base sm:text-lg font-semibold mb-4">Quick setup</h2>
               <p className="text-[var(--foreground-muted)] text-sm mb-4">
-                Add this to your MCP client configuration:
+                Add to your MCP client configuration:
               </p>
-              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-3 sm:p-4 overflow-x-auto">
-                <pre className="text-xs sm:text-sm font-mono">
+              <div className="space-y-4">
+                {/* Claude Code */}
+                <div>
+                  <h3 className="text-xs font-semibold mb-1.5 text-[var(--foreground-muted)]">Claude Code</h3>
+                  <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-lg p-3 overflow-x-auto">
+                    <pre className="text-xs font-mono">
+{`claude mcp add appleuimcp --transport http \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  https://appleuimcp.com/mcp`}
+                    </pre>
+                  </div>
+                </div>
+                {/* Cursor */}
+                <div>
+                  <h3 className="text-xs font-semibold mb-1.5 text-[var(--foreground-muted)]">Cursor <span className="font-normal opacity-70">~/.cursor/mcp.json</span></h3>
+                  <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-lg p-3 overflow-x-auto">
+                    <pre className="text-xs font-mono">
 {`{
   "mcpServers": {
     "appleuimcp": {
       "url": "https://appleuimcp.com/mcp",
-      "transport": "streamable-http",
-      "headers": {
-        "Authorization": "Bearer YOUR_API_KEY"
-      }
+      "headers": { "Authorization": "Bearer YOUR_API_KEY" }
     }
   }
 }`}
-                </pre>
+                    </pre>
+                  </div>
+                </div>
+                {/* VS Code Copilot */}
+                <div>
+                  <h3 className="text-xs font-semibold mb-1.5 text-[var(--foreground-muted)]">VS Code Copilot <span className="font-normal opacity-70">.vscode/mcp.json</span></h3>
+                  <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-lg p-3 overflow-x-auto">
+                    <pre className="text-xs font-mono">
+{`{
+  "servers": {
+    "appleuimcp": {
+      "type": "http",
+      "url": "https://appleuimcp.com/mcp",
+      "headers": { "Authorization": "Bearer YOUR_API_KEY" }
+    }
+  }
+}`}
+                    </pre>
+                  </div>
+                </div>
+                {/* OpenAI Codex */}
+                <div>
+                  <h3 className="text-xs font-semibold mb-1.5 text-[var(--foreground-muted)]">OpenAI Codex <span className="font-normal opacity-70">~/.codex/config.toml</span></h3>
+                  <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-lg p-3 overflow-x-auto">
+                    <pre className="text-xs font-mono">
+{`[mcp_servers.appleuimcp]
+url = "https://appleuimcp.com/mcp"
+bearer_token_env_var = "APPLEUIMCP_API_KEY"`}
+                    </pre>
+                  </div>
+                </div>
               </div>
             </div>
 
