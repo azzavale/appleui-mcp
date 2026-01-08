@@ -55,16 +55,23 @@ export default function Home() {
           </div>
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Features</a>
-            <a href="#components" className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Components</a>
             <a href="#pricing" className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Pricing</a>
             <a href="#docs" className="text-sm text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors">Docs</a>
           </div>
-          <a
-            href="#pricing"
-            className="px-4 py-2 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
-          >
-            Get Started
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="/dashboard"
+              className="px-4 py-2 text-sm font-medium text-[var(--foreground-muted)] hover:text-[var(--foreground)] transition-colors"
+            >
+              Dashboard
+            </a>
+            <a
+              href="#pricing"
+              className="px-4 py-2 bg-[var(--taupe-950)] dark:bg-[var(--taupe-100)] text-[var(--taupe-50)] dark:text-[var(--taupe-950)] rounded-full text-sm font-medium hover:opacity-90 transition-opacity"
+            >
+              Get Started
+            </a>
+          </div>
         </nav>
       </header>
 
@@ -327,6 +334,7 @@ export default function Home() {
             <a href="#features" className="hover:text-[var(--foreground)]">Features</a>
             <a href="#pricing" className="hover:text-[var(--foreground)]">Pricing</a>
             <a href="#docs" className="hover:text-[var(--foreground)]">Docs</a>
+            <a href="/dashboard" className="hover:text-[var(--foreground)]">Dashboard</a>
           </div>
           <p className="text-sm text-[var(--foreground-subtle)]">© 2026 TrueSmartTech OÜ. All rights reserved.</p>
         </div>
