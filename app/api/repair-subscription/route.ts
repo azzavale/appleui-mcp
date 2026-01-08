@@ -3,8 +3,8 @@ import { db, users, subscriptions } from '@/lib/db';
 import { getStripeClient, mapSubscriptionStatus } from '@/lib/stripe';
 import { eq } from 'drizzle-orm';
 
-// This endpoint repairs missing subscription records
-// It fetches the subscription from Stripe and creates the DB record
+// This endpoint repairs subscription records by syncing with Stripe
+// It fetches the subscription from Stripe and creates/updates the DB record
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,21 +33,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'User has no Stripe customer ID' }, { status: 400 });
     }
 
-    // Check if subscription already exists
-    const existingSubscription = await db
-      .select()
-      .from(subscriptions)
-      .where(eq(subscriptions.userId, userId))
-      .limit(1);
-
-    if (existingSubscription.length > 0) {
-      return NextResponse.json({
-        message: 'Subscription already exists',
-        subscription: existingSubscription[0],
-      });
-    }
-
-    // Fetch subscriptions from Stripe
+    // Fetch subscriptions from Stripe (source of truth)
     const stripe = getStripeClient();
     const stripeSubscriptions = await stripe.subscriptions.list({
       customer: stripeCustomerId,
@@ -66,7 +52,38 @@ export async function POST(request: NextRequest) {
     const currentPeriodEnd = new Date((subscriptionItem?.current_period_end || 0) * 1000);
     const cancelAtPeriodEnd = stripeSubscription.cancel_at_period_end;
 
-    // Create subscription record
+    // Check if subscription already exists
+    const existingSubscription = await db
+      .select()
+      .from(subscriptions)
+      .where(eq(subscriptions.userId, userId))
+      .limit(1);
+
+    if (existingSubscription.length > 0) {
+      // Update existing subscription with Stripe data
+      const updatedSubscription = await db
+        .update(subscriptions)
+        .set({
+          stripeSubscriptionId: stripeSubscription.id,
+          stripePriceId: priceId,
+          status,
+          currentPeriodStart,
+          currentPeriodEnd,
+          cancelAtPeriodEnd,
+          updatedAt: new Date(),
+        })
+        .where(eq(subscriptions.userId, userId))
+        .returning();
+
+      return NextResponse.json({
+        message: 'Subscription synced from Stripe',
+        previousStatus: existingSubscription[0].status,
+        newStatus: status,
+        subscription: updatedSubscription[0],
+      });
+    }
+
+    // Create new subscription record
     const newSubscription = await db
       .insert(subscriptions)
       .values({
@@ -81,7 +98,7 @@ export async function POST(request: NextRequest) {
       .returning();
 
     return NextResponse.json({
-      message: 'Subscription repaired successfully',
+      message: 'Subscription created from Stripe',
       subscription: newSubscription[0],
     });
   } catch (error) {

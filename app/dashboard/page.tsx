@@ -387,7 +387,7 @@ export default function Dashboard() {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Subscription</h2>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  userData.subscriptionStatus === 'active'
+                  userData.subscriptionStatus === 'active' || userData.subscriptionStatus === 'trialing'
                     ? 'bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200'
                     : 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-200'
                 }`}>

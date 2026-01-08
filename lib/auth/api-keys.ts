@@ -1,6 +1,6 @@
 import { randomBytes, createHash } from 'crypto';
 import { db, apiKeys, users, subscriptions } from '../db';
-import { eq, and, isNull, sql } from 'drizzle-orm';
+import { eq, and, isNull, sql, desc } from 'drizzle-orm';
 
 const API_KEY_PREFIX = 'appleui_sk_';
 
@@ -70,7 +70,7 @@ export async function validateApiKey(key: string): Promise<ApiKeyValidationResul
 
     const { id: apiKeyId, userId } = apiKeyRecord[0];
 
-    // Check subscription status
+    // Check subscription status - get most recent subscription
     const userSubscription = await db
       .select({
         status: subscriptions.status,
@@ -78,24 +78,30 @@ export async function validateApiKey(key: string): Promise<ApiKeyValidationResul
       })
       .from(subscriptions)
       .where(eq(subscriptions.userId, userId))
-      .orderBy(subscriptions.createdAt)
+      .orderBy(desc(subscriptions.createdAt))
       .limit(1);
 
-    // Allow if subscription is active or trialing
-    const validStatuses = ['active', 'trialing'];
     if (userSubscription.length === 0) {
       return { valid: false, error: 'No active subscription' };
     }
 
     const { status, currentPeriodEnd } = userSubscription[0];
 
-    if (!validStatuses.includes(status)) {
-      return { valid: false, error: `Subscription ${status}` };
-    }
+    // Check if subscription period has expired
+    const periodExpired = currentPeriodEnd && new Date(currentPeriodEnd) < new Date();
 
-    // Check if subscription has expired
-    if (currentPeriodEnd && new Date(currentPeriodEnd) < new Date()) {
-      return { valid: false, error: 'Subscription expired' };
+    // Allow access if:
+    // 1. Status is active/trialing and period not expired, OR
+    // 2. Status is canceled but still within paid period (cancel_at_period_end)
+    const activeStatuses = ['active', 'trialing'];
+    const isActive = activeStatuses.includes(status) && !periodExpired;
+    const isCanceledButPaid = status === 'canceled' && !periodExpired;
+
+    if (!isActive && !isCanceledButPaid) {
+      if (periodExpired) {
+        return { valid: false, error: 'Subscription expired' };
+      }
+      return { valid: false, error: `Subscription ${status}` };
     }
 
     return {
