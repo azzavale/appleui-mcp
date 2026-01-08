@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  serverExternalPackages: ['@modelcontextprotocol/sdk'],
+  // Experimental options to fix ESM bundling
+  experimental: {
+    // Force bundle server components
+    serverComponentsExternalPackages: [],
+  },
   // Allow existing API routes in /api folder
   async rewrites() {
     return [

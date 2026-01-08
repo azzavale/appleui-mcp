@@ -8,7 +8,7 @@ import {
   materialTokens,
   designPrinciples,
   componentPatterns
-} from '../data/index';
+} from '@/lib/mcp-data';
 
 export const styleGuideSchema = z.object({
   topic: z.enum([
