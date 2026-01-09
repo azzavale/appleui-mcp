@@ -360,10 +360,19 @@ export default function Home() {
               <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">Claude Code</h3>
               <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
                 <pre className="text-xs font-mono">
-{`claude mcp add appleuimcp \\
-  --transport http \\
-  -H "Authorization: Bearer YOUR_API_KEY" \\
-  https://appleuimcp.com/mcp`}
+{`
+{
+  "mcpServers": {
+    "appleuimcp": {
+      "transport": "http",
+      "url": "https://appleuimcp.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}
+`}
                 </pre>
               </div>
             </div>
@@ -372,16 +381,19 @@ export default function Home() {
               <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">Cursor <span className="font-normal opacity-70">~/.cursor/mcp.json</span></h3>
               <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
                 <pre className="text-xs font-mono">
-{`{
+{`
+{
   "mcpServers": {
     "appleuimcp": {
+      "transport": "http",
       "url": "https://appleuimcp.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
-}`}
+}
+`}
                 </pre>
               </div>
             </div>
@@ -390,17 +402,19 @@ export default function Home() {
               <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">VS Code Copilot <span className="font-normal opacity-70">.vscode/mcp.json</span></h3>
               <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
                 <pre className="text-xs font-mono">
-{`{
+{`
+{
   "servers": {
     "appleuimcp": {
-      "type": "http",
+      "transport": "http",
       "url": "https://appleuimcp.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
-}`}
+}
+`}
                 </pre>
               </div>
             </div>
@@ -409,9 +423,14 @@ export default function Home() {
               <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">OpenAI Codex <span className="font-normal opacity-70">~/.codex/config.toml</span></h3>
               <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
                 <pre className="text-xs font-mono">
-{`[mcp_servers.appleuimcp]
+{`
+[mcp_servers.appleuimcp]
+transport = "http"
 url = "https://appleuimcp.com/mcp"
-bearer_token_env_var = "APPLEUIMCP_API_KEY"`}
+
+[mcp_servers.appleuimcp.headers]
+Authorization = "Bearer YOUR_API_KEY"
+`}
                 </pre>
               </div>
             </div>
