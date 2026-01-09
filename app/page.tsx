@@ -619,11 +619,6 @@ Authorization = "Bearer YOUR_API_KEY"`}
                 </p>
               </div>
             </div>
-            <div className="mt-6 pt-6 border-t border-[var(--border)]">
-              <p className="text-sm text-[var(--foreground-muted)]">
-                Still having issues? Check the <a href="https://modelcontextprotocol.io/docs" target="_blank" rel="noopener noreferrer" className="text-[var(--accent-blue)] hover:underline">MCP documentation</a> or reach out at <a href="mailto:support@appleuimcp.com" className="text-[var(--accent-blue)] hover:underline">support@appleuimcp.com</a>.
-              </p>
-            </div>
           </div>
         </div>
       </section>
@@ -645,7 +640,13 @@ Authorization = "Bearer YOUR_API_KEY"`}
             <a href="#docs" className="py-2 hover:text-[var(--foreground)] transition-colors">Docs</a>
             <a href="/dashboard" className="py-2 hover:text-[var(--foreground)] transition-colors">Dashboard</a>
           </div>
+          <div className="flex flex-wrap justify-center gap-6 sm:gap-8 text-xs text-[var(--foreground-subtle)]">
+            <a href="/privacy" className="py-1 hover:text-[var(--foreground-muted)] transition-colors">Privacy Policy</a>
+            <a href="/terms" className="py-1 hover:text-[var(--foreground-muted)] transition-colors">Terms of Service</a>
+            <a href="/cookies" className="py-1 hover:text-[var(--foreground-muted)] transition-colors">Cookie Policy</a>
+          </div>
           <p className="text-xs sm:text-sm text-[var(--foreground-subtle)] text-center">© 2026 TrueSmartTech OÜ. All rights reserved.</p>
+          <p className="text-xs text-[var(--foreground-subtle)] text-center">Apple UI MCP is not affiliated with Apple Inc.</p>
         </div>
       </footer>
     </div>
