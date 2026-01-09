@@ -349,90 +349,280 @@ export default function Home() {
 
       {/* Docs Section */}
       <section id="docs" className="py-16 sm:py-24 px-4 sm:px-6">
-        <div className="max-w-5xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <div className="text-center mb-10 sm:mb-16">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4">Quick setup</h2>
-            <p className="text-sm sm:text-base text-[var(--foreground-muted)]">Add to your MCP client configuration</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold mb-4">Documentation</h2>
+            <p className="text-sm sm:text-base text-[var(--foreground-muted)] max-w-2xl mx-auto">
+              Set up Apple UI MCP with your favorite AI coding tool. Click on any card to view official MCP documentation.
+            </p>
           </div>
-          <div className="grid md:grid-cols-2 gap-4 sm:gap-6">
+
+          {/* Setup Cards */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16">
             {/* Claude Code */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">Claude Code</h3>
-              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
-                <pre className="text-xs font-mono">
-{`
-{
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Claude Code</h3>
+                  <a
+                    href="https://docs.anthropic.com/en/docs/claude-code/mcp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">~/.claude.json</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`{
   "mcpServers": {
     "appleuimcp": {
-      "transport": "http",
+      "type": "http",
       "url": "https://appleuimcp.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
-}
-`}
+}`}
                 </pre>
               </div>
             </div>
+
             {/* Cursor */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">Cursor <span className="font-normal opacity-70">~/.cursor/mcp.json</span></h3>
-              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
-                <pre className="text-xs font-mono">
-{`
-{
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Cursor</h3>
+                  <a
+                    href="https://docs.cursor.com/context/model-context-protocol"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">~/.cursor/mcp.json</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`{
   "mcpServers": {
     "appleuimcp": {
-      "transport": "http",
       "url": "https://appleuimcp.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
-}
-`}
+}`}
                 </pre>
               </div>
             </div>
-            {/* VS Code Copilot */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">VS Code Copilot <span className="font-normal opacity-70">.vscode/mcp.json</span></h3>
-              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
-                <pre className="text-xs font-mono">
-{`
-{
+
+            {/* VS Code */}
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">VS Code</h3>
+                  <a
+                    href="https://code.visualstudio.com/docs/copilot/chat/mcp-servers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">.vscode/mcp.json</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`{
   "servers": {
     "appleuimcp": {
-      "transport": "http",
+      "type": "http",
       "url": "https://appleuimcp.com/mcp",
       "headers": {
         "Authorization": "Bearer YOUR_API_KEY"
       }
     }
   }
-}
-`}
+}`}
                 </pre>
               </div>
             </div>
+
+            {/* Windsurf */}
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Windsurf</h3>
+                  <a
+                    href="https://docs.windsurf.com/windsurf/mcp"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">~/.codeium/windsurf/mcp_config.json</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`{
+  "mcpServers": {
+    "appleuimcp": {
+      "serverUrl": "https://appleuimcp.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}`}
+                </pre>
+              </div>
+            </div>
+
+            {/* Gemini CLI */}
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">Gemini CLI</h3>
+                  <a
+                    href="https://github.com/google-gemini/gemini-cli#mcp-model-context-protocol-servers"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">~/.gemini/settings.json</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`{
+  "mcpServers": {
+    "appleuimcp": {
+      "httpUrl": "https://appleuimcp.com/mcp",
+      "headers": {
+        "Authorization": "Bearer YOUR_API_KEY"
+      }
+    }
+  }
+}`}
+                </pre>
+              </div>
+            </div>
+
             {/* OpenAI Codex */}
-            <div>
-              <h3 className="text-sm font-semibold mb-2 text-[var(--foreground-muted)]">OpenAI Codex <span className="font-normal opacity-70">~/.codex/config.toml</span></h3>
-              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] rounded-xl p-4 overflow-x-auto h-full">
-                <pre className="text-xs font-mono">
-{`
-[mcp_servers.appleuimcp]
-transport = "http"
+            <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] overflow-hidden">
+              <div className="p-4 sm:p-5 border-b border-[var(--border)]">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="font-semibold">OpenAI Codex</h3>
+                  <a
+                    href="https://github.com/openai/codex#mcp-server-configuration"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs px-2 py-1 bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] rounded-full hover:bg-[var(--accent-blue)]/20 transition-colors"
+                  >
+                    Docs
+                  </a>
+                </div>
+                <p className="text-xs text-[var(--foreground-subtle)]">~/.codex/config.toml</p>
+              </div>
+              <div className="bg-[var(--taupe-950)] text-[var(--taupe-100)] p-4 overflow-x-auto">
+                <pre className="text-xs font-mono whitespace-pre">
+{`[mcp_servers.appleuimcp]
+type = "http"
 url = "https://appleuimcp.com/mcp"
 
 [mcp_servers.appleuimcp.headers]
-Authorization = "Bearer YOUR_API_KEY"
-`}
+Authorization = "Bearer YOUR_API_KEY"`}
                 </pre>
               </div>
+            </div>
+          </div>
+
+          {/* Quick Setup Steps */}
+          <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] p-6 sm:p-8 mb-8 sm:mb-12">
+            <h3 className="text-lg sm:text-xl font-semibold mb-6">Quick Setup</h3>
+            <div className="grid sm:grid-cols-3 gap-6">
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] flex items-center justify-center font-semibold flex-shrink-0 text-sm">1</div>
+                <div>
+                  <h4 className="font-medium mb-1">Get your API key</h4>
+                  <p className="text-sm text-[var(--foreground-muted)]">Subscribe and get your key from the <a href="/dashboard" className="text-[var(--accent-blue)] hover:underline">dashboard</a>.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] flex items-center justify-center font-semibold flex-shrink-0 text-sm">2</div>
+                <div>
+                  <h4 className="font-medium mb-1">Add configuration</h4>
+                  <p className="text-sm text-[var(--foreground-muted)]">Copy the config for your tool and replace <code className="text-xs bg-[var(--taupe-200)] dark:bg-[var(--taupe-800)] px-1 py-0.5 rounded">YOUR_API_KEY</code>.</p>
+                </div>
+              </div>
+              <div className="flex gap-4">
+                <div className="w-8 h-8 rounded-full bg-[var(--accent-blue)]/10 text-[var(--accent-blue)] flex items-center justify-center font-semibold flex-shrink-0 text-sm">3</div>
+                <div>
+                  <h4 className="font-medium mb-1">Restart your tool</h4>
+                  <p className="text-sm text-[var(--foreground-muted)]">Restart your AI coding tool to load the MCP server.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Troubleshooting */}
+          <div className="bg-[var(--background-secondary)] rounded-2xl border border-[var(--border)] p-6 sm:p-8">
+            <h3 className="text-lg sm:text-xl font-semibold mb-6">Troubleshooting</h3>
+            <div className="space-y-4">
+              <div className="border-b border-[var(--border)] pb-4">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <span className="text-[var(--accent-orange)]">?</span>
+                  MCP server not showing up
+                </h4>
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  Make sure you&apos;ve saved the config file in the correct location and restarted your tool. Check that JSON syntax is valid (no trailing commas).
+                </p>
+              </div>
+              <div className="border-b border-[var(--border)] pb-4">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <span className="text-[var(--accent-orange)]">?</span>
+                  Authentication errors (401)
+                </h4>
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  Verify your API key is correct and hasn&apos;t expired. Keys start with <code className="text-xs bg-[var(--taupe-200)] dark:bg-[var(--taupe-800)] px-1 py-0.5 rounded">aum_</code>. Generate a new key from the dashboard if needed.
+                </p>
+              </div>
+              <div className="border-b border-[var(--border)] pb-4">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <span className="text-[var(--accent-orange)]">?</span>
+                  Connection timeouts
+                </h4>
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  Check your internet connection. If behind a firewall or proxy, ensure <code className="text-xs bg-[var(--taupe-200)] dark:bg-[var(--taupe-800)] px-1 py-0.5 rounded">appleuimcp.com</code> is allowed.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <span className="text-[var(--accent-orange)]">?</span>
+                  Tools not appearing in chat
+                </h4>
+                <p className="text-sm text-[var(--foreground-muted)]">
+                  Some tools require you to enable MCP in settings. In Cursor, go to Settings → Features → MCP. In VS Code, ensure you&apos;re using agent mode.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 pt-6 border-t border-[var(--border)]">
+              <p className="text-sm text-[var(--foreground-muted)]">
+                Still having issues? Check the <a href="https://modelcontextprotocol.io/docs" target="_blank" rel="noopener noreferrer" className="text-[var(--accent-blue)] hover:underline">MCP documentation</a> or reach out at <a href="mailto:support@appleuimcp.com" className="text-[var(--accent-blue)] hover:underline">support@appleuimcp.com</a>.
+              </p>
             </div>
           </div>
         </div>
